@@ -4,11 +4,20 @@ const { createHmac, randomBytes } = require("crypto");
 const { creatTokenForUser } = require("../services/authentication");
 
 const UserSchema = new Schema({
-    fullName: { type: String, required: true },
-    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    fullName: { type: String },   // Made optional
+    email: { 
+        type: String, 
+        required: true, 
+        unique: true, 
+        lowercase: true, 
+        trim: true 
+    },
     salt: { type: String },
     password: { type: String },
-    profileImageURL: { type: String, default: "https://res.cloudinary.com/dheausxnx/image/upload/v1/blogifyer_uploads/default_profile.png" },
+    profileImageURL: { 
+        type: String, 
+        default: "https://res.cloudinary.com/dheausxnx/image/upload/v1/blogifyer_uploads/default_profile.png" 
+    },
     role: { type: String, enum: ["USER", "ADMIN"], default: "USER" },
 
     isVerified: { type: Boolean, default: false },
@@ -37,7 +46,7 @@ UserSchema.methods.generateResetToken = function () {
 UserSchema.static('matchPassword', async function (email, password) {
     const user = await this.findOne({ email });
     if (!user) throw new Error("User not found");
-    if (!user.isVerified) throw new Error("Please verify your email");
+    if (!user.isVerified) throw new Error("Please verify your email first");
 
     const userProvidedHash = createHmac("sha256", user.salt).update(password).digest("hex");
     if (user.password !== userProvidedHash) throw new Error("Incorrect Password");
