@@ -5,34 +5,40 @@ const { creatTokenForUser } = require("../services/authentication");
 
 const router = Router();
 
-// ====================== GOOGLE STRATEGY SETUP ======================
+// ====================== REGISTER GOOGLE STRATEGY ======================
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 
-if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
-    passport.use("google", new GoogleStrategy({
-        clientID: process.env.GOOGLE_CLIENT_ID,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: process.env.GOOGLE_CALLBACK_URL || "http://localhost:8000/user/auth/google/callback"
-    }, async (accessToken, refreshToken, profile, done) => {
-        try {
-            const user = await User.findOrCreateGoogleUser(profile);
-            return done(null, user);
-        } catch (err) {
-            console.error("Google Strategy Error:", err);
-            return done(err, null);
-        }
-    }));
+const clientID = process.env.GOOGLE_CLIENT_ID;
+const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+const callbackURL = process.env.GOOGLE_CALLBACK_URL;
 
-    console.log("✅ Google OAuth Strategy Registered Successfully");
+if (clientID && clientSecret && callbackURL) {
+    passport.use(
+        "google",
+        new GoogleStrategy(
+            {
+                clientID,
+                clientSecret,
+                callbackURL,
+            },
+            async (accessToken, refreshToken, profile, done) => {
+                try {
+                    const user = await User.findOrCreateGoogleUser(profile);
+                    return done(null, user);
+                } catch (err) {
+                    console.error("Google Strategy Error:", err);
+                    return done(err, null);
+                }
+            }
+        )
+    );
+    console.log("✅ Google Strategy Registered Successfully");
 } else {
-    console.warn("⚠️ Google OAuth credentials not found. Google login disabled.");
+    console.warn("⚠️ Google OAuth is disabled - Missing credentials");
 }
 
-// ====================== PASSPORT SESSION SETUP ======================
-passport.serializeUser((user, done) => {
-    done(null, user.id);
-});
-
+// ====================== PASSPORT SERIALIZE ======================
+passport.serializeUser((user, done) => done(null, user.id));
 passport.deserializeUser(async (id, done) => {
     try {
         const user = await User.findById(id);
@@ -74,10 +80,12 @@ router.get("/logout", (req, res) => {
     res.clearCookie("token").redirect("/");
 });
 
-// ====================== GOOGLE OAUTH ROUTES ======================
+// ====================== GOOGLE ROUTES ======================
 router.get("/auth/google", (req, res, next) => {
-    if (!process.env.GOOGLE_CLIENT_ID) {
-        return res.render("signin", { error: "Google login is not configured" });
+    if (!clientID) {
+        return res.render("signin", { 
+            error: "Google login is currently unavailable. Please use email/password." 
+        });
     }
     passport.authenticate("google", { scope: ["profile", "email"] })(req, res, next);
 });
