@@ -6,10 +6,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 
     <style>
-        body {
-            background-color: #0b0c10 !important;
-            color: #f1f1f1;
-        }
+        body { background-color: #0b0c10 !important; color: #f1f1f1; }
         .hero-section {
             background: linear-gradient(135deg, #669eea 0%, #764ba2 100%);
             color: white;
@@ -26,160 +23,108 @@
             margin-bottom: 24px;
             position: relative;
         }
-        .blog-card-full:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
-            border-color: #3b82f6;
-        }
-        .card-img-horizontal {
-            height: 100%;
-            min-height: 200px;
-            max-height: 250px;
-            object-fit: cover;
-            width: 100%;
-        }
-        .avatar-sm {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-        .meta-text {
-            font-size: 0.85rem;
-            color: #a0aec0;
-        }
+        .blog-card-full:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.5); }
+        .card-img-horizontal { height: 220px; object-fit: cover; width: 100%; }
+        .avatar-sm { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
     </style>
 </head>
 <body>
     <%- include("./partials/nave") %>
 
-    <header class="hero-section text-center shadow">
+    <header class="hero-section text-center">
         <div class="container">
             <h1 class="display-4 fw-bold">Welcome to Blogify</h1>
-            <p class="lead text-light opacity-75">Discover stories, thinking, and expertise from writers on any topic.</p>
+            <p class="lead opacity-75">Discover stories and ideas from amazing writers.</p>
         </div>
     </header>
 
     <main class="container mb-5" style="max-width: 960px;">
-        <div class="row">
-            <% if (locals.blogs && blogs.length > 0) { %>
-                <% blogs.forEach(blog => { %>
-                    <div class="col-12">
-                        <div class="card blog-card-full shadow-sm">
-                            <div class="row g-0">
-                                <div class="col-md-4">
-                                    <img 
-                                        src="<%= blog.coverImageURL ? blog.coverImageURL : '/images/default-blog.png' %>" 
-                                        class="card-img-horizontal" 
-                                        alt="Blog Cover"
-                                        onerror="this.src='/images/default-blog.png';"
-                                    >
+        <% if (!blogs || blogs.length === 0) { %>
+            <div class="text-center py-5">
+                <h3 class="text-muted">No blogs found yet.</h3>
+                <a href="/blogs/add-new" class="btn btn-outline-primary mt-3">Create First Blog</a>
+            </div>
+        <% } else { %>
+            <% blogs.forEach(blog => { %>
+                <div class="col-12 mb-4">
+                    <div class="card blog-card-full">
+                        <div class="row g-0">
+                            <div class="col-md-4">
+                                <img src="<%= blog.coverImageURL || '/images/default-blog.png' %>" 
+                                     class="card-img-horizontal" 
+                                     onerror="this.src='/images/default-blog.png';"
+                                     alt="<%= blog.title %>">
+                            </div>
+
+                            <div class="col-md-8 p-4 position-relative">
+                                <!-- 3 Dots Menu -->
+                                <div class="dropdown position-absolute top-0 end-0 m-3">
+                                    <button class="btn btn-link text-light p-1" data-bs-toggle="dropdown">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><a class="dropdown-item" href="/blogs/<%= blog._id %>"><i class="fas fa-eye me-2"></i>View</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="shareBlog('<%= blog._id %>')"><i class="fas fa-share-alt me-2"></i>Share</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="downloadBlog('<%= blog._id %>')"><i class="fas fa-download me-2"></i>Download</a></li>
+                                        
+                                        <% if (user && blog.createdBy && String(blog.createdBy._id) === String(user._id)) { %>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li>
+                                                <a class="dropdown-item text-danger" href="#" onclick="deleteBlog('<%= blog._id %>')">
+                                                    <i class="fas fa-trash me-2"></i>Delete
+                                                </a>
+                                            </li>
+                                        <% } %>
+                                    </ul>
                                 </div>
 
-                                <div class="col-md-8 d-flex flex-column justify-content-between p-4 position-relative">
-
-                                    <!-- 3 Dots Dropdown -->
-                                    <div class="dropdown position-absolute top-0 end-0 m-3">
-                                        <button class="btn btn-link text-light p-1" type="button" data-bs-toggle="dropdown">
-                                            <i class="fas fa-ellipsis-v"></i>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end">
-                                            <li>
-                                                <a class="dropdown-item" href="/blogs/<%= blog._id %>">
-                                                    <i class="fas fa-eye me-2"></i> View Blog
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item" href="#" onclick="shareBlog('<%= blog._id %>')">
-                                                    <i class="fas fa-share-alt me-2"></i> Share
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item" href="#" onclick="downloadBlog('<%= blog._id %>')">
-                                                    <i class="fas fa-download me-2"></i> Download
-                                                </a>
-                                            </li>
-                                            
-                                            <% if (user && blog.createdBy && String(blog.createdBy._id || '') === String(user._id || '')) { %>
-                                                <li><hr class="dropdown-divider"></li>
-                                                <li>
-                                                    <a class="dropdown-item text-danger" href="#" onclick="deleteBlog('<%= blog._id %>')">
-                                                        <i class="fas fa-trash me-2"></i> Delete
-                                                    </a>
-                                                </li>
-                                            <% } %>
-                                        </ul>
-                                    </div>
-
-                                    <div>
-                                        <div class="d-flex align-items-center mb-3">
-                                            <% if (blog.createdBy) { %>
-                                                <img 
-                                                    src="<%= blog.createdBy.profileImageURL || '/imgs/default.png' %>" 
-                                                    class="avatar-sm me-2 shadow-sm"
-                                                    onerror="this.src='/imgs/default.png';"
-                                                >
-                                                <span class="fw-semibold text-light me-2"><%= blog.createdBy.fullName %></span>
-                                            <% } else { %>
-                                                <span class="fw-semibold text-light me-2">Anonymous Writer</span>
-                                            <% } %>
-                                            <span class="text-muted mx-1">•</span>
-                                            <span class="meta-text">
-                                                <%= new Date(blog.createdAt).toLocaleDateString('en-US', { 
-                                                    month: 'short', day: 'numeric', year: 'numeric' 
-                                                }) %>
-                                            </span>
-                                        </div>
-
-                                        <h3 class="card-title fw-bold text-white mb-2"><%= blog.title %></h3>
-                                        <p class="card-text text-light opacity-75">
-                                            <%= blog.body ? blog.body.substring(0, 180) : 'No content available' %>...
-                                        </p>
-                                    </div>
-
-                                    <div class="pt-3">
-                                        <a href="/blogs/<%= blog._id %>" class="btn btn-primary rounded-pill px-4 btn-sm">Read More</a>
-                                    </div>
+                                <div class="d-flex align-items-center mb-3">
+                                    <% if (blog.createdBy) { %>
+                                        <img src="<%= blog.createdBy.profileImageURL || '/imgs/default.png' %>" 
+                                             class="avatar-sm me-2" onerror="this.src='/imgs/default.png';">
+                                        <span class="fw-semibold"><%= blog.createdBy.fullName %></span>
+                                    <% } else { %>
+                                        <span class="text-muted">Anonymous</span>
+                                    <% } %>
+                                    <span class="mx-2 text-muted">•</span>
+                                    <small class="text-muted">
+                                        <%= new Date(blog.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) %>
+                                    </small>
                                 </div>
+
+                                <h3 class="fw-bold text-white mb-2"><%= blog.title %></h3>
+                                <p class="text-light opacity-75">
+                                    <%= blog.body ? blog.body.substring(0, 160) : '' %>...
+                                </p>
+
+                                <a href="/blogs/<%= blog._id %>" class="btn btn-primary btn-sm mt-2">Read More</a>
                             </div>
                         </div>
                     </div>
-                <% }) %>
-            <% } else { %>
-                <div class="col-12 text-center py-5">
-                    <h3 class="text-muted">No blogs found. Be the first to write one!</h3>
-                    <a href="/blogs/add-new" class="btn btn-outline-primary mt-3">Create Blog</a>
                 </div>
-            <% } %>
-        </div>
+            <% }) %>
+        <% } %>
     </main>
 
     <%- include("./partials/scripts") %>
 
     <script>
         function deleteBlog(id) {
-            if (confirm("Are you sure you want to delete this blog?")) {
+            if (confirm("Delete this blog?")) {
                 fetch(`/blogs/${id}`, { method: 'DELETE' })
                     .then(res => res.json())
                     .then(data => {
-                        if (data.success) {
-                            alert(data.message);
-                            location.reload();
-                        } else {
-                            alert(data.message || "Failed to delete");
-                        }
-                    })
-                    .catch(() => alert("Error occurred"));
+                        if (data.success) location.reload();
+                        else alert(data.message);
+                    });
             }
         }
-
         function shareBlog(id) {
-            const url = `${window.location.origin}/blogs/${id}`;
-            navigator.clipboard.writeText(url).then(() => alert("Link copied to clipboard!"));
+            navigator.clipboard.writeText(`${window.location.origin}/blogs/${id}`)
+                .then(() => alert("Link copied!"));
         }
-
         function downloadBlog(id) {
-            alert("Download feature coming soon!");
+            alert("Download coming soon!");
         }
     </script>
 </body>
