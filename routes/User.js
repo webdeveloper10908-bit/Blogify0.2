@@ -1,80 +1,115 @@
-const mongoose = require("mongoose");
-const { Schema, model } = mongoose;
-const { createHmac, randomBytes } = require("crypto");
+const { Router } = require("express");
+const passport = require("passport");
+const User = require("../models/user");
 const { creatTokenForUser } = require("../services/authentication");
 
-const UserSchema = new Schema({
-    fullName: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    salt: { type: String },
-    password: { type: String },           // Optional for Google users
-    googleId: { type: String, unique: true, sparse: true },
-    profileImageURL: { type: String, default: "/imgs/default.png" },
-    role: { type: String, enum: ["USER", "ADMIN"], default: "USER" },
-}, { timestamps: true });
+const router = Router();
 
-// ====================== PASSWORD HASHING MIDDLEWARE ======================
-UserSchema.pre("save", function (next) {
-    // Skip if password is not modified or if it's a Google user
-    if (!this.isModified("password") || !this.password || this.googleId) {
-        return next();
-    }
+// ====================== GOOGLE STRATEGY SETUP ======================
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
 
-    try {
-        const salt = randomBytes(16).toString("hex");
-        const hashedPassword = createHmac("sha256", salt)
-            .update(this.password)
-            .digest("hex");
+const clientID = process.env.GOOGLE_CLIENT_ID;
+const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+const callbackURL = process.env.GOOGLE_CALLBACK_URL;
 
-        this.salt = salt;
-        this.password = hashedPassword;
-        next();
-    } catch (error) {
-        console.error("Password Hashing Error:", error);
-        next(error);   // Pass error to next()
-    }
-});
-
-// ====================== STATIC METHODS ======================
-UserSchema.static('matchPassword', async function (email, password) {
-    const user = await this.findOne({ email });
-    if (!user) throw new Error("User not found");
-    if (!user.password) throw new Error("This account uses Google Sign-In");
-
-    const userProvidedHash = createHmac("sha256", user.salt)
-        .update(password)
-        .digest("hex");
-
-    if (user.password !== userProvidedHash) throw new Error("Incorrect Password");
-
-    return creatTokenForUser(user);
-});
-
-UserSchema.static('findOrCreateGoogleUser', async function (profile) {
-    let user = await this.findOne({ googleId: profile.id });
-
-    if (!user) {
-        user = await this.findOne({ email: profile.emails[0].value });
-
-        if (user) {
-            // Link Google to existing account
-            user.googleId = profile.id;
-            if (profile.photos && profile.photos[0]) {
-                user.profileImageURL = profile.photos[0].value;
+if (clientID && clientSecret && callbackURL) {
+    passport.use(
+        "google",
+        new GoogleStrategy(
+            {
+                clientID,
+                clientSecret,
+                callbackURL,
+            },
+            async (accessToken, refreshToken, profile, done) => {
+                try {
+                    const user = await User.findOrCreateGoogleUser(profile);
+                    return done(null, user);
+                } catch (err) {
+                    console.error("❌ Google Strategy Error:", err);
+                    return done(err, null);
+                }
             }
-            await user.save();
-        } else {
-            // Create new user
-            user = await this.create({
-                fullName: profile.displayName,
-                email: profile.emails[0].value,
-                googleId: profile.id,
-                profileImageURL: profile.photos?.[0]?.value || "/imgs/default.png"
-            });
-        }
+        )
+    );
+    console.log("✅ Google OAuth Strategy Registered Successfully");
+} else {
+    console.warn("⚠️ Google OAuth credentials missing - Google login disabled");
+}
+
+// ====================== PASSPORT SERIALIZE / DESERIALIZE ======================
+passport.serializeUser((user, done) => done(null, user.id));
+
+passport.deserializeUser(async (id, done) => {
+    try {
+        const user = await User.findById(id);
+        done(null, user);
+    } catch (err) {
+        done(err, null);
     }
-    return user;
 });
 
-const User = mongoose.models.user || model("user", UserSchema);
-module.exports = User;
+// ====================== NORMAL AUTH ROUTES ======================
+router.get("/signin", (req, res) => res.render("signin"));
+router.get("/signup", (req, res) => res.render("signup"));
+
+router.post("/signup", async (req, res) => {
+    const { fullName, email, password } = req.body;
+    try {
+        await User.create({ fullName, email, password });
+        res.redirect("/user/signin");
+    } catch (error) {
+        res.render("signup", { error: "Email already registered" });
+    }
+});
+
+router.post("/signin", async (req, res) => {
+    const { email, password } = req.body;
+    try {
+        const token = await User.matchPassword(email, password);
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict"
+        }).redirect("/");
+    } catch (error) {
+        res.render("signin", { error: "Incorrect Email or Password" });
+    }
+});
+
+router.get("/logout", (req, res) => {
+    res.clearCookie("token").redirect("/");
+});
+
+// ====================== GOOGLE OAUTH ROUTES ======================
+router.get("/auth/google", (req, res, next) => {
+    console.log("🔍 Google Debug:");
+    console.log("   Client ID     :", clientID ? "✅ Present" : "❌ MISSING");
+    console.log("   Client Secret :", clientSecret ? "✅ Present" : "❌ MISSING");
+    console.log("   Callback URL  :", callbackURL || "❌ MISSING");
+
+    if (!clientID || !clientSecret || !callbackURL) {
+        return res.render("signin", { 
+            error: "Google login is currently unavailable. Please use email/password." 
+        });
+    }
+
+    passport.authenticate("google", { scope: ["profile", "email"] })(req, res, next);
+});
+
+router.get("/auth/google/callback",
+    passport.authenticate("google", { 
+        failureRedirect: "/user/signin",
+        failureMessage: true 
+    }),
+    (req, res) => {
+        const token = creatTokenForUser(req.user);
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict"
+        }).redirect("/");
+    }
+);
+
+module.exports = router;
