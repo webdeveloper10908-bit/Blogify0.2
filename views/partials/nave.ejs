@@ -19,12 +19,11 @@
         <% } %>
       </ul>
 
-      <!-- Right side links (Authentication & Profile) -->
+      <!-- Right side links -->
       <ul class="navbar-nav ms-auto align-items-center">
         <% if (locals.user) { %>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <!-- Profile Image -->
               <img 
                 src="<%= locals.user.profileImageURL || '/imgs/default.png' %>" 
                 alt="<%= locals.user.fullName %>" 
@@ -32,13 +31,15 @@
                 height="32" 
                 class="rounded-circle border border-light" 
                 style="object-fit: cover;"
-                onerror="this.src='/imgs/default.png';"
-              >
+                onerror="this.src='/imgs/default.png';">
               <span><%= locals.user.fullName %></span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
-              <li><a class="dropdown-item" href="#">View Profile</a></li>
+              <li><a class="dropdown-item" href="/user/profile">👤 View Profile</a></li>
               <li><a class="dropdown-item" href="#">Settings</a></li>
+              <% if (locals.user.role === "ADMIN") { %>
+                <li><a class="dropdown-item" href="/admin/users">🔧 Admin Panel</a></li>
+              <% } %>
               <li><hr class="dropdown-divider"></li>
               <li><a class="dropdown-item text-danger" href="/user/logout">Logout</a></li>
             </ul>
