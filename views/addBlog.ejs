@@ -14,20 +14,21 @@
             <div class="alert alert-danger"><%= locals.error %></div>
         <% } %>
 
-        <form action="/blogs/add-new" method="POST">
+        <form action="/blogs/add-new" method="POST" enctype="multipart/form-data">
             <div class="mb-3">
                 <label class="form-label">Blog Title</label>
                 <input type="text" name="title" class="form-control" required>
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Cover Image URL (Optional)</label>
-                <input type="text" name="coverImageURL" class="form-control" placeholder="https://...">
+                <label class="form-label">Cover Image</label>
+                <input type="file" name="coverImage" class="form-control" accept="image/*">
+                <small class="text-muted">Optional (JPG, PNG, etc.)</small>
             </div>
 
             <div class="mb-3">
                 <label class="form-label">Blog Content</label>
-                <textarea name="body" rows="12" class="form-control" required></textarea>
+                <textarea name="body" rows="15" class="form-control" required></textarea>
             </div>
 
             <button type="submit" class="btn btn-primary btn-lg">Publish Blog</button>
