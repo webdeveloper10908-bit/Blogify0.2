@@ -6,13 +6,13 @@ const { sendOTP } = require("../services/email");
 
 const router = Router();
 
-// In-memory OTP store (Use Redis in production)
-const otpStore = new Map(); // email -> {otp, expiry, userData}
+// In-memory OTP store
+const otpStore = new Map();
 
 router.get("/signin", (req, res) => res.render("signin"));
 router.get("/signup", (req, res) => res.render("signup"));
 
-// Send OTP on Signup
+// ====================== SIGNUP WITH OTP ======================
 router.post("/signup", async (req, res) => {
     const { fullName, email, password } = req.body;
 
@@ -26,28 +26,30 @@ router.post("/signup", async (req, res) => {
 
         otpStore.set(email.toLowerCase(), {
             otp,
-            expiry: Date.now() + 5 * 60 * 1000, // 5 minutes
+            expiry: Date.now() + 5 * 60 * 1000,
             userData: { fullName, email: email.toLowerCase(), password }
         });
 
         const emailSent = await sendOTP(email, otp);
 
         if (!emailSent) {
-            return res.render("signup", { error: "Failed to send OTP. Please try again." });
+            return res.render("signup", { 
+                error: "Failed to send OTP. Please try again later." 
+            });
         }
 
         res.render("signup", { 
             emailForVerification: email.toLowerCase(),
-            success: "OTP sent successfully! Check your email."
+            success: "OTP sent successfully! Check your email (including Spam folder)."
         });
 
     } catch (error) {
-        console.error(error);
-        res.render("signup", { error: "Something went wrong" });
+        console.error("Signup Error:", error);
+        res.render("signup", { error: "Something went wrong. Please try again." });
     }
 });
 
-// Verify OTP
+// ====================== VERIFY OTP ======================
 router.post("/verify-otp", async (req, res) => {
     const { email, otp } = req.body;
 
@@ -63,11 +65,9 @@ router.post("/verify-otp", async (req, res) => {
             return res.json({ success: false, message: "Incorrect OTP" });
         }
 
-        // Create User
         await User.create(stored.userData);
         otpStore.delete(email.toLowerCase());
 
-        // Auto Login
         const token = await User.matchPassword(email, stored.userData.password);
 
         res.cookie("token", token, { 
@@ -85,7 +85,7 @@ router.post("/verify-otp", async (req, res) => {
     }
 });
 
-// Login & Logout (unchanged)
+// Login & Logout
 router.post("/signin", async (req, res) => {
     try {
         const token = await User.matchPassword(req.body.email, req.body.password);
@@ -101,11 +101,7 @@ router.post("/signin", async (req, res) => {
 });
 
 router.get("/logout", (req, res) => {
-    res.clearCookie("token", {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax"
-    });
+    res.clearCookie("token");
     res.redirect("/");
 });
 
