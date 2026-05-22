@@ -7,357 +7,89 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
         }
-        .signup-container {
+        .container {
             background: white;
-            padding: 40px 30px;
+            padding: 40px;
             border-radius: 16px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             width: 100%;
             max-width: 420px;
         }
-        h2 { text-align: center; color: #1a1a1a; margin-bottom: 24px; font-size: 28px; }
-
-        .form-group { margin-bottom: 20px; }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #555;
-            font-weight: 500;
-        }
-        input[type="text"], input[type="email"], input[type="password"] {
-            width: 100%;
-            padding: 14px 16px;
-            border: 2px solid #e5e7eb;
-            border-radius: 10px;
-            font-size: 16px;
-        }
-        input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-        button[type="submit"] {
-            width: 100%;
-            padding: 14px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        button[type="submit"]:hover { background: #5568d3; }
-        button[type="submit"]:disabled { background: #a5b4fc; cursor: not-allowed; }
-
-        .alert {
-            padding: 12px;
-            border-radius: 8px;
-            text-align: center;
-            margin-bottom: 15px;
-            display: none;
-            font-weight: 500;
-        }
-        .alert-success { color: #10b981; background: #d1fae5; }
-        .alert-error { color: #ef4444; background: #fee2e2; }
-
-        /* Modal Styles */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-overlay.active { display: flex; }
-
-        .modal {
-            background: white;
-            padding: 32px 24px;
-            border-radius: 20px;
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-            position: relative;
-        }
-        .btn-close {
-            position: absolute;
-            top: 12px; right: 12px;
-            font-size: 28px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: #6b7280;
-        }
-        .otp-inputs {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin: 20px 0;
-        }
-        .otp-digit {
-            width: 48px;
-            height: 52px;
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-            border: 2px solid #e5e7eb;
-            border-radius: 10px;
-        }
-        .otp-digit:focus {
-            border-color: #667eea;
-            outline: none;
-        }
-        .btn-verify, .btn-resend {
-            width: 100%;
-            padding: 14px;
-            margin: 8px 0;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .btn-verify { background: #667eea; color: white; }
-        .btn-resend { background: none; color: #667eea; }
-        .error-message { color: #ef4444; margin: 10px 0; min-height: 22px; }
-        .success-message { color: #10b981; margin: 10px 0; min-height: 22px; }
+        h2 { text-align: center; margin-bottom: 20px; }
+        input { width: 100%; padding: 14px; margin: 10px 0; border: 2px solid #ddd; border-radius: 8px; }
+        button { width: 100%; padding: 14px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; }
+        .error { color: red; text-align: center; margin: 10px 0; }
     </style>
 </head>
 <body>
-
-    <div class="signup-container">
+    <div class="container">
         <h2>Create Account</h2>
-        <div id="statusAlert" class="alert"></div>
-
         <form id="signupForm">
-            <div class="form-group">
-                <label>Full Name</label>
-                <input type="text" id="fullName" required placeholder="Enter your full name">
-            </div>
-            <div class="form-group">
-                <label>Email Address</label>
-                <input type="email" id="email" required placeholder="Enter your email">
-            </div>
-            <div class="form-group">
-                <label>Password</label>
-                <input type="password" id="password" required minlength="6" placeholder="Create password">
-            </div>
-            <div class="form-group">
-                <label>Confirm Password</label>
-                <input type="password" id="confirmPassword" required minlength="6" placeholder="Confirm password">
-            </div>
-            <button type="submit" id="signupBtn">Sign Up</button>
+            <input type="text" id="fullName" placeholder="Full Name" required>
+            <input type="email" id="email" placeholder="Email" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+            <button type="submit">Send OTP</button>
         </form>
-
-        <div class="signin-link" style="text-align:center; margin-top:20px;">
-            Already have an account? <a href="/user/signin">Sign In</a>
-        </div>
-    </div>
-
-    <!-- OTP Modal -->
-    <div class="modal-overlay" id="otpModal">
-        <div class="modal">
-            <button class="btn-close" onclick="closeModal()">×</button>
-            <h3>Verify Your Email</h3>
-            <p>We sent a 6-digit code to <strong id="displayEmail"></strong></p>
-
-            <div class="otp-inputs">
-                <input type="text" maxlength="1" class="otp-digit" data-index="0">
-                <input type="text" maxlength="1" class="otp-digit" data-index="1">
-                <input type="text" maxlength="1" class="otp-digit" data-index="2">
-                <input type="text" maxlength="1" class="otp-digit" data-index="3">
-                <input type="text" maxlength="1" class="otp-digit" data-index="4">
-                <input type="text" maxlength="1" class="otp-digit" data-index="5">
-            </div>
-
-            <div class="error-message" id="otpError"></div>
-            <div class="success-message" id="otpSuccess"></div>
-
-            <button class="btn-verify" id="verifyBtn" onclick="verifyOTP()">Verify OTP</button>
-            <button class="btn-resend" id="resendBtn" onclick="resendOTP()" disabled>Resend Code</button>
-            <div class="timer" id="timer" style="margin-top:8px; color:#666; font-size:14px;"></div>
-        </div>
+        <div id="message" class="error"></div>
     </div>
 
     <script>
-        // Variables
-        let currentEmail = "";
-        let currentUserData = {};
-        let countdown = 300;
-        let timerInterval;
-
-        const signupForm = document.getElementById('signupForm');
-        const signupBtn = document.getElementById('signupBtn');
-        const statusAlert = document.getElementById('statusAlert');
-        const modal = document.getElementById('otpModal');
-        const displayEmail = document.getElementById('displayEmail');
-        const otpInputs = document.querySelectorAll('.otp-digit');
-        const otpError = document.getElementById('otpError');
-        const otpSuccess = document.getElementById('otpSuccess');
-        const verifyBtn = document.getElementById('verifyBtn');
-        const resendBtn = document.getElementById('resendBtn');
-
-        function showAlert(msg, type = 'error') {
-            statusAlert.textContent = msg;
-            statusAlert.className = `alert alert-${type}`;
-            statusAlert.style.display = 'block';
-        }
-
-        // Signup Form Submit
-        signupForm.addEventListener('submit', async (e) => {
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            statusAlert.style.display = 'none';
+            const messageDiv = document.getElementById('message');
 
-            const fullName = document.getElementById('fullName').value.trim();
-            const email = document.getElementById('email').value.trim();
+            const fullName = document.getElementById('fullName').value;
+            const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
 
-            if (password !== confirmPassword) return showAlert("Passwords do not match.");
-            if (password.length < 6) return showAlert("Password must be at least 6 characters.");
-
-            currentUserData = { fullName, email, password, confirmPassword };
-
-            signupBtn.disabled = true;
-            signupBtn.textContent = "Sending OTP...";
+            if (password !== confirmPassword) {
+                messageDiv.textContent = "Passwords do not match";
+                return;
+            }
 
             try {
-                const res = await fetch('/user/signup', {
+                const res = await fetch('/send-otp', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ fullName, email, password, confirmPassword })
+                    body: JSON.stringify({ email })
                 });
 
                 const data = await res.json();
 
                 if (data.success) {
-                    currentEmail = email.toLowerCase();
-                    displayEmail.textContent = currentEmail;
-                    modal.classList.add('active');
-                    otpInputs[0].focus();
-                    startTimer();
-                    showAlert("OTP sent successfully!", "success");
+                    const otp = prompt("Enter OTP sent to your email:");
+                    if (otp) {
+                        const verifyRes = await fetch('/verify-otp', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email, otp, fullName, password })
+                        });
+                        const verifyData = await verifyRes.json();
+
+                        if (verifyData.success) {
+                            alert("✅ Account created successfully!");
+                            window.location.href = "/";
+                        } else {
+                            messageDiv.textContent = verifyData.message;
+                        }
+                    }
                 } else {
-                    showAlert(data.message || "Something went wrong.");
+                    messageDiv.textContent = data.message;
                 }
             } catch (err) {
-                showAlert("Network error. Please try again.");
-            } finally {
-                signupBtn.disabled = false;
-                signupBtn.textContent = "Sign Up";
+                messageDiv.textContent = "Something went wrong";
             }
         });
-
-        // OTP Input Logic
-        otpInputs.forEach((input, index) => {
-            input.addEventListener('input', () => {
-                input.value = input.value.replace(/[^0-9]/g, '');
-                if (input.value.length === 1 && index < 5) otpInputs[index + 1].focus();
-            });
-
-            input.addEventListener('keydown', (e) => {
-                if (e.key === "Backspace" && input.value === "" && index > 0) {
-                    otpInputs[index - 1].focus();
-                }
-                if (e.key === "Enter") verifyOTP();
-            });
-        });
-
-        function startTimer() {
-            clearInterval(timerInterval);
-            countdown = 300;
-            resendBtn.disabled = true;
-
-            timerInterval = setInterval(() => {
-                const min = Math.floor(countdown / 60);
-                const sec = countdown % 60;
-                document.getElementById('timer').textContent = `Code expires in ${min}:${sec < 10 ? '0' : ''}${sec}`;
-                countdown--;
-
-                if (countdown < 0) {
-                    clearInterval(timerInterval);
-                    resendBtn.disabled = false;
-                    document.getElementById('timer').textContent = "Code expired. Resend to get new code.";
-                }
-            }, 1000);
-        }
-
-        async function verifyOTP() {
-            const otp = Array.from(otpInputs).map(i => i.value).join('');
-            if (otp.length !== 6) return otpError.textContent = "Please enter full 6-digit OTP";
-
-            verifyBtn.disabled = true;
-            verifyBtn.textContent = "Verifying...";
-
-            try {
-                const res = await fetch('/user/verify-otp', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: currentEmail, otp })
-                });
-
-                const data = await res.json();
-
-                if (data.success) {
-                    otpSuccess.textContent = "Verification successful! Redirecting...";
-                    setTimeout(() => window.location.href = "/", 1500);
-                } else {
-                    otpError.textContent = data.message || "Invalid OTP";
-                    otpInputs.forEach(i => i.value = '');
-                    otpInputs[0].focus();
-                }
-            } catch (err) {
-                otpError.textContent = "Network error";
-            } finally {
-                verifyBtn.disabled = false;
-                verifyBtn.textContent = "Verify OTP";
-            }
-        }
-
-        async function resendOTP() {
-            resendBtn.disabled = true;
-            resendBtn.textContent = "Sending...";
-
-            try {
-                const res = await fetch('/user/signup', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(currentUserData)
-                });
-
-                const data = await res.json();
-
-                if (data.success) {
-                    otpSuccess.textContent = "New OTP sent!";
-                    otpInputs.forEach(i => i.value = '');
-                    startTimer();
-                } else {
-                    otpError.textContent = data.message || "Failed to resend";
-                }
-            } catch (err) {
-                otpError.textContent = "Network error";
-            } finally {
-                resendBtn.textContent = "Resend Code";
-            }
-        }
-
-        function closeModal() {
-            modal.classList.remove('active');
-            clearInterval(timerInterval);
-        }
     </script>
 </body>
 </html>
