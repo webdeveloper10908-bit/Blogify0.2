@@ -1,12 +1,8 @@
 const express = require("express");
-const multer = require("multer");
+const router = express.Router();
 const Blog = require("../models/Blog");
 const { restrictToLoggedInUserOnly } = require("../middlewares/authentication");
-const { uploadToCloudinary } = require("../middlewares/CloudinaryUploads"); // Using your existing file
-
-const upload = multer({ storage: multer.memoryStorage() });
-
-const router = express.Router();
+const cloudinaryUpload = require("../middlewares/CloudinaryUploads");   // ← Your existing file
 
 // Protect routes
 router.use(restrictToLoggedInUserOnly);
@@ -17,15 +13,9 @@ router.get("/add-new", (req, res) => {
 });
 
 // POST - Create Blog with Image Upload
-router.post("/add-new", upload.single("coverImage"), async (req, res) => {
+router.post("/add-new", cloudinaryUpload.single("coverImage"), async (req, res) => {
     try {
         const { title, body } = req.body;
-        let coverImageURL = null;
-
-        // Upload image if provided
-        if (req.file) {
-            coverImageURL = await uploadToCloudinary(req.file);
-        }
 
         if (!title || !body) {
             return res.render("addBlog", { 
@@ -37,7 +27,7 @@ router.post("/add-new", upload.single("coverImage"), async (req, res) => {
         const newBlog = await Blog.create({
             title,
             body,
-            coverImageURL,
+            coverImageURL: req.file ? req.file.path : null,   // Cloudinary returns URL in req.file.path
             createdBy: req.user._id
         });
 
@@ -46,7 +36,7 @@ router.post("/add-new", upload.single("coverImage"), async (req, res) => {
         console.error("🚨 Blog Creation Error:", error);
         res.render("addBlog", { 
             user: req.user, 
-            error: "Something went wrong. Please try again." 
+            error: "Something went wrong while creating the blog." 
         });
     }
 });
