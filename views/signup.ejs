@@ -106,17 +106,13 @@
             background: #e5e7eb;
         }
 
-        .divider span {
-            background: white;
-            padding: 0 15px;
-        }
+        .divider span { background: white; padding: 0 15px; }
 
         .error { color: #ef4444; background: #fee2e2; padding: 12px; border-radius: 8px; text-align: center; margin: 10px 0; }
         .success { color: #10b981; background: #d1fae5; padding: 12px; border-radius: 8px; text-align: center; margin: 10px 0; }
 
-        /* OTP Input Boxes - Always Visible */
         .otp-section {
-            margin-top: 20px;
+            margin-top: 15px;
             padding: 15px;
             border: 2px solid #e5e7eb;
             border-radius: 12px;
@@ -142,7 +138,6 @@
 
         .otp-digit:focus {
             border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
         }
     </style>
 </head>
@@ -169,9 +164,10 @@
                 <input type="password" id="confirmPassword" required placeholder="Confirm password">
             </div>
 
+            <!-- Send OTP Button -->
             <button type="button" onclick="sendOTP()">Send OTP</button>
 
-            <!-- OTP Input Boxes (Always Visible) -->
+            <!-- OTP Input -->
             <div class="otp-section">
                 <label style="text-align:center; display:block; margin-bottom:8px;">Enter 6 Digit OTP</label>
                 <div class="otp-inputs">
@@ -182,7 +178,7 @@
                     <input type="text" maxlength="1" class="otp-digit" data-index="4">
                     <input type="text" maxlength="1" class="otp-digit" data-index="5">
                 </div>
-                <button type="button" onclick="verifyOTP()">Verify OTP & Sign Up</button>
+                <button type="button" onclick="createAccount()">Create Account</button>
             </div>
 
             <div id="message"></div>
@@ -218,7 +214,7 @@
 
             if (!email) {
                 messageDiv.className = 'error';
-                messageDiv.textContent = "Please enter your email first";
+                messageDiv.textContent = "Please enter your email";
                 return;
             }
 
@@ -241,19 +237,20 @@
                 }
             } catch (err) {
                 messageDiv.className = 'error';
-                messageDiv.textContent = "Failed to send OTP. Try again.";
+                messageDiv.textContent = "Failed to send OTP";
             }
         }
 
-        async function verifyOTP() {
+        async function createAccount() {
             const otp = Array.from(otpInputs).map(i => i.value).join('');
             const fullName = document.getElementById('fullName').value.trim();
+            const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
 
             if (otp.length !== 6) {
                 messageDiv.className = 'error';
-                messageDiv.textContent = "Please fill all 6 OTP digits";
+                messageDiv.textContent = "Please enter all 6 OTP digits";
                 return;
             }
 
@@ -267,7 +264,12 @@
                 const res = await fetch('/verify-otp', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: currentEmail, otp, fullName, password })
+                    body: JSON.stringify({ 
+                        email: currentEmail || email, 
+                        otp, 
+                        fullName, 
+                        password 
+                    })
                 });
 
                 const data = await res.json();
