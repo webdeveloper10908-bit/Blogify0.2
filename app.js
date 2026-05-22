@@ -12,22 +12,20 @@ const { checkForAuthenticationCookie } = require("./middlewares/authentication")
 const app = express();
 const PORT = process.env.PORT || 8000;
 
-// ====================== ENVIRONMENT ======================
+// Environment Variables
 if (process.env.NODE_ENV !== "production") {
     require("dotenv").config();
 }
 
-// ====================== MongoDB ======================
+// MongoDB Connection
 const MONGODB_URI = process.env.MONGODB_URI;
 if (MONGODB_URI) {
-    mongoose.connect(MONGODB_URI, {
-        serverSelectionTimeoutMS: 30000,
-    })
-    .then(() => console.log("✅ MongoDB Connected"))
-    .catch(err => console.error("❌ MongoDB Error:", err.message));
+    mongoose.connect(MONGODB_URI)
+        .then(() => console.log("✅ MongoDB Connected"))
+        .catch(err => console.error("❌ MongoDB Error:", err.message));
 }
 
-// ====================== VIEW & BASIC MIDDLEWARE ======================
+// Middleware
 app.set("view engine", "ejs");
 app.set("views", path.resolve("./views"));
 
@@ -36,27 +34,33 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.resolve("./public")));
 
-// === PASSPORT MUST BE BEFORE ROUTES ===
 app.use(passport.initialize());
-
 app.use(checkForAuthenticationCookie("token"));
 
 // Home Route
 app.get("/", async (req, res) => {
     try {
         const Blog = require("./models/Blog");
-        const allBlogs = await Blog.find({}).sort({ createdAt: -1 })
+        const allBlogs = await Blog.find({})
+            .sort({ createdAt: -1 })
             .populate("createdBy", "fullName profileImageURL")
             .lean();
 
-        res.render("home", { user: req.user || null, blogs: allBlogs });
+        console.log("👤 Home Page - User:", req.user ? req.user.email : "Guest");
+
+        res.render("home", { 
+            user: req.user || null,
+            blogs: allBlogs || [] 
+        });
     } catch (error) {
-        console.error("Home Error:", error);
-        res.status(500).send("Server Error");
+        console.error("🚨 Home Route Error:", error);
+        res.status(500).send("Internal Server Error");
     }
 });
 
 app.use("/user", UserRoute);
 app.use("/blogs", BlogRoute);
 
-app.listen(PORT, () => console.log(`🚀 Server on port ${PORT}`));
+app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+});
