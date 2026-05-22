@@ -1,26 +1,36 @@
 const express = require("express");
-const router = express.Router();
+const multer = require("multer");
 const Blog = require("../models/Blog");
 const { restrictToLoggedInUserOnly } = require("../middlewares/authentication");
+const { uploadToCloudinary } = require("../services/cloudinary"); // Using your existing file
 
-// Middleware - Only logged in users can create/edit blogs
+const upload = multer({ storage: multer.memoryStorage() });
+
+const router = express.Router();
+
+// Protect routes
 router.use(restrictToLoggedInUserOnly);
 
 // GET - Add New Blog Form
 router.get("/add-new", (req, res) => {
-    res.render("addBlog", { user: req.user });
+    res.render("addBlog", { user: req.user, error: null });
 });
 
-// POST - Create New Blog
-router.post("/add-new", async (req, res) => {
+// POST - Create Blog with Image Upload
+router.post("/add-new", upload.single("coverImage"), async (req, res) => {
     try {
         const { title, body } = req.body;
-        const coverImageURL = req.body.coverImageURL || null; // If using Cloudinary later
+        let coverImageURL = null;
+
+        // Upload image if provided
+        if (req.file) {
+            coverImageURL = await uploadToCloudinary(req.file);
+        }
 
         if (!title || !body) {
             return res.render("addBlog", { 
                 user: req.user, 
-                error: "Title and Body are required" 
+                error: "Title and Body are required!" 
             });
         }
 
@@ -36,12 +46,12 @@ router.post("/add-new", async (req, res) => {
         console.error("🚨 Blog Creation Error:", error);
         res.render("addBlog", { 
             user: req.user, 
-            error: "Something went wrong while creating blog" 
+            error: "Something went wrong. Please try again." 
         });
     }
 });
 
-// GET - View Single Blog
+// GET Single Blog
 router.get("/:id", async (req, res) => {
     try {
         const blog = await Blog.findById(req.params.id)
@@ -50,10 +60,7 @@ router.get("/:id", async (req, res) => {
 
         if (!blog) return res.status(404).send("Blog not found");
 
-        res.render("blog", { 
-            user: req.user, 
-            blog 
-        });
+        res.render("blog", { user: req.user, blog });
     } catch (error) {
         console.error(error);
         res.status(500).send("Internal Server Error");
