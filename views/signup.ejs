@@ -64,7 +64,7 @@
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
-        button[type="submit"] {
+        button {
             width: 100%;
             padding: 14px;
             background: #667eea;
@@ -74,7 +74,7 @@
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            margin-top: 10px;
+            margin: 10px 0;
         }
 
         button:hover {
@@ -94,7 +94,7 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
-            margin-top: 15px;
+            margin-top: 10px;
             text-decoration: none;
         }
 
@@ -126,73 +126,37 @@
             padding: 12px;
             border-radius: 8px;
             text-align: center;
-            margin-bottom: 15px;
+            margin: 10px 0;
         }
 
-        /* OTP Modal */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-overlay.active {
-            display: flex;
-        }
-
-        .modal {
-            background: white;
-            padding: 32px 24px;
-            border-radius: 20px;
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-            position: relative;
-        }
-
-        .btn-close {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            font-size: 28px;
-            background: none;
-            border: none;
-            cursor: pointer;
+        /* OTP Section */
+        .otp-section {
+            margin-top: 20px;
+            padding: 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
         }
 
         .otp-inputs {
             display: flex;
             gap: 10px;
             justify-content: center;
-            margin: 20px 0;
+            margin: 15px 0;
         }
 
         .otp-digit {
-            width: 50px;
-            height: 55px;
+            width: 48px;
+            height: 52px;
             text-align: center;
-            font-size: 24px;
+            font-size: 22px;
             font-weight: bold;
             border: 2px solid #e5e7eb;
-            border-radius: 12px;
+            border-radius: 10px;
         }
 
-        .btn-verify {
-            width: 100%;
-            padding: 14px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            margin: 10px 0;
+        .otp-digit:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
         }
     </style>
 </head>
@@ -201,14 +165,10 @@
     <div class="signup-container">
         <h2>Create Account</h2>
 
-        <% if (typeof error !== 'undefined' && error) { %>
-            <div class="error"><%= error %></div>
-        <% } %>
-
         <form id="signupForm">
             <div class="form-group">
                 <label for="fullName">Full Name</label>
-                <input type="text" id="fullName" required placeholder="Enter full name">
+                <input type="text" id="fullName" required placeholder="Enter your full name">
             </div>
             <div class="form-group">
                 <label for="email">Email</label>
@@ -222,7 +182,24 @@
                 <label for="confirmPassword">Confirm Password</label>
                 <input type="password" id="confirmPassword" required placeholder="Confirm password">
             </div>
-            <button type="submit">Sign Up</button>
+
+            <button type="button" onclick="sendOTP()">Send OTP</button>
+
+            <!-- OTP Input Fields -->
+            <div class="otp-section" id="otpSection" style="display: none;">
+                <label>Enter 6-Digit OTP</label>
+                <div class="otp-inputs">
+                    <input type="text" maxlength="1" class="otp-digit" data-index="0" autofocus>
+                    <input type="text" maxlength="1" class="otp-digit" data-index="1">
+                    <input type="text" maxlength="1" class="otp-digit" data-index="2">
+                    <input type="text" maxlength="1" class="otp-digit" data-index="3">
+                    <input type="text" maxlength="1" class="otp-digit" data-index="4">
+                    <input type="text" maxlength="1" class="otp-digit" data-index="5">
+                </div>
+                <button type="button" onclick="verifyOTP()">Verify OTP & Sign Up</button>
+            </div>
+
+            <div class="error" id="message"></div>
         </form>
 
         <div class="divider"><span>OR</span></div>
@@ -234,37 +211,12 @@
         </a>
     </div>
 
-    <!-- OTP Popup Modal -->
-    <div class="modal-overlay" id="otpModal">
-        <div class="modal">
-            <button class="btn-close" onclick="closeModal()">×</button>
-            
-            <h3>Enter OTP</h3>
-            <p>We've sent a 6-digit code to <strong id="displayEmail"></strong></p>
-            
-            <div class="otp-inputs">
-                <input type="text" maxlength="1" class="otp-digit" data-index="0" autofocus>
-                <input type="text" maxlength="1" class="otp-digit" data-index="1">
-                <input type="text" maxlength="1" class="otp-digit" data-index="2">
-                <input type="text" maxlength="1" class="otp-digit" data-index="3">
-                <input type="text" maxlength="1" class="otp-digit" data-index="4">
-                <input type="text" maxlength="1" class="otp-digit" data-index="5">
-            </div>
-            
-            <div class="error" id="otpError"></div>
-            
-            <button class="btn-verify" onclick="verifyOTP()">Verify OTP</button>
-        </div>
-    </div>
-
     <script>
-        const modal = document.getElementById('otpModal');
-        const displayEmail = document.getElementById('displayEmail');
         const otpInputs = document.querySelectorAll('.otp-digit');
-        const otpError = document.getElementById('otpError');
+        const messageDiv = document.getElementById('message');
         let currentEmail = "";
 
-        // OTP Auto-focus
+        // Auto focus for OTP inputs
         otpInputs.forEach((input, index) => {
             input.addEventListener('input', () => {
                 input.value = input.value.replace(/[^0-9]/g, '');
@@ -274,18 +226,20 @@
             });
         });
 
-        // Handle Signup Form
-        document.getElementById('signupForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            otpError.textContent = '';
-
-            const fullName = document.getElementById('fullName').value;
+        async function sendOTP() {
+            messageDiv.textContent = '';
             const email = document.getElementById('email').value;
+            const fullName = document.getElementById('fullName').value;
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
 
+            if (!email || !fullName || !password || !confirmPassword) {
+                messageDiv.textContent = "All fields are required";
+                return;
+            }
+
             if (password !== confirmPassword) {
-                otpError.textContent = "Passwords do not match!";
+                messageDiv.textContent = "Passwords do not match";
                 return;
             }
 
@@ -301,20 +255,21 @@
                 const data = await res.json();
 
                 if (data.success) {
-                    displayEmail.textContent = email;
-                    modal.classList.add('active');
+                    document.getElementById('otpSection').style.display = 'block';
+                    messageDiv.style.color = 'green';
+                    messageDiv.textContent = `✅ OTP sent to ${email}`;
                 } else {
-                    otpError.textContent = data.message || "Failed to send OTP";
+                    messageDiv.textContent = data.message || "Failed to send OTP";
                 }
             } catch (err) {
-                otpError.textContent = "Something went wrong. Please try again.";
+                messageDiv.textContent = "Something went wrong. Try again.";
             }
-        });
+        }
 
         async function verifyOTP() {
             const otp = Array.from(otpInputs).map(i => i.value).join('');
             if (otp.length !== 6) {
-                otpError.textContent = "Please enter all 6 digits";
+                messageDiv.textContent = "Please enter all 6 digits";
                 return;
             }
 
@@ -336,15 +291,11 @@
                     alert("✅ Account created successfully!");
                     window.location.href = "/";
                 } else {
-                    otpError.textContent = data.message || "Invalid OTP";
+                    messageDiv.textContent = data.message || "Invalid OTP";
                 }
             } catch (err) {
-                otpError.textContent = "Verification failed. Try again.";
+                messageDiv.textContent = "Verification failed. Please try again.";
             }
-        }
-
-        function closeModal() {
-            modal.classList.remove('active');
         }
     </script>
 </body>
