@@ -35,11 +35,10 @@ const UserSchema = new Schema({
     },
 }, { timestamps: true });
 
-// ====================== PASSWORD HASHING (FIXED) ======================
-UserSchema.pre("save", async function () {
-    // Skip hashing for Google users or if password is not being set/modified
+// ====================== PASSWORD HASHING ======================
+UserSchema.pre("save", async function (next) {
     if (!this.password || !this.isModified("password") || this.googleId) {
-        return;
+        return next();
     }
 
     try {
@@ -50,9 +49,10 @@ UserSchema.pre("save", async function () {
 
         this.salt = salt;
         this.password = hashedPassword;
+        next();
     } catch (error) {
         console.error("❌ Password Hashing Error:", error);
-        throw error;                    // Important for error handling
+        next(error);
     }
 });
 
@@ -73,25 +73,25 @@ UserSchema.static("matchPassword", async function (email, password) {
 
 UserSchema.static("findOrCreateGoogleUser", async function (profile) {
     try {
-        // Check if user exists with Google ID
         let user = await this.findOne({ googleId: profile.id });
 
         if (!user) {
-            // Check if user exists with same email
-            user = await this.findOne({ email: profile.emails[0].value });
+            const email = profile.emails[0].value;
+
+            user = await this.findOne({ email });
 
             if (user) {
-                // Link Google account to existing user
+                // Link Google to existing user
                 user.googleId = profile.id;
                 if (profile.photos?.[0]?.value) {
                     user.profileImageURL = profile.photos[0].value;
                 }
                 await user.save();
             } else {
-                // Create new user with Google data
+                // Create new user
                 user = await this.create({
-                    fullName: profile.displayName,
-                    email: profile.emails[0].value,
+                    fullName: profile.displayName || "Google User",
+                    email: email,
                     googleId: profile.id,
                     profileImageURL: profile.photos?.[0]?.value || "/imgs/default.png"
                 });
@@ -105,5 +105,4 @@ UserSchema.static("findOrCreateGoogleUser", async function (profile) {
 });
 
 const User = mongoose.models.user || model("user", UserSchema);
-
 module.exports = User;
