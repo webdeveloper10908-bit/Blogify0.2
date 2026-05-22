@@ -65,11 +65,6 @@
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
-        input.error-input {
-            border-color: #ef4444;
-            background: #fef2f2;
-        }
-
         button[type="submit"] {
             width: 100%;
             padding: 14px;
@@ -81,10 +76,9 @@
             font-weight: 600;
             cursor: pointer;
             margin-top: 10px;
-            transition: background 0.3s;
         }
 
-        button[type="submit"]:hover:not(:disabled) {
+        button[type="submit"]:hover {
             background: #5568d3;
         }
 
@@ -108,7 +102,6 @@
             gap: 10px;
             margin-top: 15px;
             text-decoration: none;
-            transition: all 0.3s;
         }
 
         .google-btn:hover {
@@ -136,39 +129,25 @@
         .divider span {
             background: white;
             padding: 0 15px;
-            position: relative;
         }
 
-        /* Messages */
-        .success {
-            color: #10b981;
-            background: #d1fae5;
+        /* Message banners for general alerts */
+        .alert {
             padding: 12px;
             border-radius: 8px;
             text-align: center;
             margin-bottom: 15px;
-            font-size: 14px;
-        }
-
-        .error {
-            color: #ef4444;
-            background: #fee2e2;
-            padding: 12px;
-            border-radius: 8px;
-            text-align: center;
-            margin-bottom: 15px;
-            font-size: 14px;
-        }
-
-        .field-error {
-            color: #ef4444;
-            font-size: 13px;
-            margin-top: 6px;
             display: none;
         }
 
-        .field-error.visible {
-            display: block;
+        .alert-success {
+            color: #10b981;
+            background: #d1fae5;
+        }
+
+        .alert-error {
+            color: #ef4444;
+            background: #fee2e2;
         }
 
         /* Modal Styles */
@@ -182,13 +161,10 @@
             z-index: 1000;
             justify-content: center;
             align-items: center;
-            opacity: 0;
-            transition: opacity 0.3s ease;
         }
 
         .modal-overlay.active {
             display: flex;
-            opacity: 1;
         }
 
         .modal {
@@ -196,60 +172,25 @@
             padding: 32px 24px;
             border-radius: 20px;
             box-shadow: 0 25px 80px rgba(0,0,0,0.4);
-            width: 90%;
+            width: 100%;
             max-width: 400px;
             text-align: center;
-            position: relative;
-            transform: scale(0.9);
-            transition: transform 0.3s ease;
-        }
-
-        .modal-overlay.active .modal {
-            transform: scale(1);
         }
 
         .btn-close {
             position: absolute;
             top: 12px;
-            right: 16px;
+            right: 12px;
             font-size: 28px;
             background: none;
             border: none;
             cursor: pointer;
             color: #6b7280;
-            line-height: 1;
-            padding: 0;
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            transition: all 0.2s;
         }
 
-        .btn-close:hover {
-            background: #f3f4f6;
-            color: #1a1a1a;
-        }
-
-        .modal-icon { 
-            font-size: 48px; 
-            margin-bottom: 12px; 
-        }
-        
-        .modal h3 { 
-            color: #1a1a1a; 
-            margin-bottom: 8px; 
-            font-size: 22px;
-        }
-        
-        .modal p { 
-            color: #6b7280; 
-            margin-bottom: 24px; 
-            font-size: 15px;
-            line-height: 1.5;
-        }
+        .modal-icon { font-size: 48px; margin-bottom: 12px; }
+        .modal h3 { color: #1a1a1a; margin-bottom: 8px; }
+        .modal p { color: #6b7280; margin-bottom: 24px; }
 
         .otp-inputs {
             display: flex;
@@ -259,26 +200,19 @@
         }
 
         .otp-digit {
-            width: 50px;
-            height: 55px;
+            width: 45px;
+            height: 50px;
             text-align: center;
-            font-size: 24px;
+            font-size: 22px;
             font-weight: bold;
             border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            transition: all 0.2s;
-            caret-color: #667eea;
+            border-radius: 10px;
         }
 
         .otp-digit:focus {
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
             outline: none;
-        }
-
-        .otp-digit.filled {
-            border-color: #667eea;
-            background: #f5f3ff;
         }
 
         .btn-verify {
@@ -292,16 +226,10 @@
             font-weight: 600;
             cursor: pointer;
             margin-bottom: 12px;
-            transition: background 0.3s;
         }
 
-        .btn-verify:hover:not(:disabled) {
+        .btn-verify:hover {
             background: #5568d3;
-        }
-
-        .btn-verify:disabled {
-            background: #a5b4fc;
-            cursor: not-allowed;
         }
 
         .btn-resend {
@@ -310,64 +238,15 @@
             color: #667eea;
             font-size: 15px;
             cursor: pointer;
-            font-weight: 500;
-            transition: color 0.2s;
-        }
-
-        .btn-resend:hover:not(:disabled) {
-            color: #5568d3;
-            text-decoration: underline;
         }
 
         .btn-resend:disabled {
             color: #9ca3af;
             cursor: not-allowed;
-            text-decoration: none;
         }
 
-        .timer { 
-            color: #9ca3af; 
-            font-size: 14px; 
-            margin-top: 8px; 
-            min-height: 20px;
-        }
-
-        .timer.expired {
-            color: #ef4444;
-        }
-
-        .error-message { 
-            color: #ef4444; 
-            margin: 12px 0; 
-            min-height: 20px; 
-            font-size: 14px;
-        }
-
-        .loading {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid #ffffff;
-            border-radius: 50%;
-            border-top-color: transparent;
-            animation: spin 0.8s linear infinite;
-            margin-left: 8px;
-            vertical-align: middle;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
+        .timer { color: #9ca3af; font-size: 14px; margin-top: 8px; }
+        .error-message { color: #ef4444; margin: 12px 0; min-height: 20px; font-weight: 500; }
     </style>
 </head>
 <body>
@@ -375,35 +254,27 @@
     <div class="signup-container">
         <h2>Create Account</h2>
 
-        <% if (typeof error !== 'undefined' && error) { %>
-            <div class="error"><%= error %></div>
-        <% } %>
+        <!-- Dynamically handled message slots -->
+        <div id="statusAlert" class="alert"></div>
 
-        <% if (typeof success !== 'undefined' && success) { %>
-            <div class="success"><%= success %></div>
-        <% } %>
-
-        <form id="signupForm" action="/user/signup" method="POST" novalidate>
+        <form id="signupForm">
             <div class="form-group">
                 <label for="fullName">Full Name</label>
-                <input type="text" id="fullName" name="fullName" required placeholder="Enter your full name" 
-                       value="<%= typeof formData !== 'undefined' ? formData.fullName || '' : '' %>">
+                <input type="text" id="fullName" name="fullName" required placeholder="Enter your full name">
             </div>
             <div class="form-group">
                 <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" required placeholder="Enter your email"
-                       value="<%= typeof formData !== 'undefined' ? formData.email || '' : '' %>">
+                <input type="email" id="email" name="email" required placeholder="Enter your email">
             </div>
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" required placeholder="Create password (min 6 chars)" minlength="6">
+                <input type="password" id="password" name="password" required placeholder="Create password">
             </div>
             <div class="form-group">
                 <label for="confirmPassword">Confirm Password</label>
                 <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Confirm password">
-                <div class="field-error" id="passwordError">Passwords do not match</div>
             </div>
-            <button type="submit" id="submitBtn">Sign Up</button>
+            <button type="submit" id="signupSubmitBtn">Sign Up</button>
         </form>
 
         <div class="divider"><span>OR</span></div>
@@ -417,291 +288,182 @@
 
     <!-- OTP Modal -->
     <div class="modal-overlay" id="otpModal">
-        <div class="modal">
-            <button class="btn-close" onclick="closeModal()" aria-label="Close">×</button>
+        <div class="modal" style="position: relative;">
+            <button class="btn-close" onclick="closeModal()">×</button>
             
             <div class="modal-icon">🔐</div>
             <h3>Verify Your Email</h3>
             <p>We've sent a 6-digit code to <strong id="displayEmail"></strong></p>
             
             <div class="otp-inputs">
-                <input type="text" maxlength="1" class="otp-digit" data-index="0" inputmode="numeric" autocomplete="one-time-code" aria-label="OTP digit 1">
-                <input type="text" maxlength="1" class="otp-digit" data-index="1" inputmode="numeric" aria-label="OTP digit 2">
-                <input type="text" maxlength="1" class="otp-digit" data-index="2" inputmode="numeric" aria-label="OTP digit 3">
-                <input type="text" maxlength="1" class="otp-digit" data-index="3" inputmode="numeric" aria-label="OTP digit 4">
-                <input type="text" maxlength="1" class="otp-digit" data-index="4" inputmode="numeric" aria-label="OTP digit 5">
-                <input type="text" maxlength="1" class="otp-digit" data-index="5" inputmode="numeric" aria-label="OTP digit 6">
+                <input type="text" maxlength="1" class="otp-digit" data-index="0">
+                <input type="text" maxlength="1" class="otp-digit" data-index="1">
+                <input type="text" maxlength="1" class="otp-digit" data-index="2">
+                <input type="text" maxlength="1" class="otp-digit" data-index="3">
+                <input type="text" maxlength="1" class="otp-digit" data-index="4">
+                <input type="text" maxlength="1" class="otp-digit" data-index="5">
             </div>
             
             <div class="error-message" id="otpError"></div>
             
-            <button class="btn-verify" id="verifyBtn" onclick="verifyOTP()">Verify OTP</button>
+            <button class="btn-verify" onclick="verifyOTP()">Verify OTP</button>
             <button class="btn-resend" id="resendBtn" onclick="resendOTP()" disabled>Resend Code</button>
             <div class="timer" id="timer"></div>
         </div>
     </div>
 
     <script>
-        // ===== DOM Elements =====
+        const signupForm = document.getElementById('signupForm');
+        const signupSubmitBtn = document.getElementById('signupSubmitBtn');
+        const statusAlert = document.getElementById('statusAlert');
+        
         const modal = document.getElementById('otpModal');
         const displayEmail = document.getElementById('displayEmail');
         const otpInputs = document.querySelectorAll('.otp-digit');
         const otpError = document.getElementById('otpError');
-        const signupForm = document.getElementById('signupForm');
-        const submitBtn = document.getElementById('submitBtn');
-        const passwordInput = document.getElementById('password');
-        const confirmInput = document.getElementById('confirmPassword');
-        const passwordError = document.getElementById('passwordError');
-        const verifyBtn = document.getElementById('verifyBtn');
-        const resendBtn = document.getElementById('resendBtn');
-        const timerDisplay = document.getElementById('timer');
-
-        // ===== State =====
-        let currentEmail = "";
-        let countdown = 300;
-        let timerInterval;
-        let isSubmitting = false;
-
-        // ===== Initialize =====
         
-        // Show modal if emailForVerification is passed from backend
-        <% if (typeof emailForVerification !== 'undefined' && emailForVerification) { %>
-            currentEmail = "<%= emailForVerification.replace(/"/g, '\\"') %>";
-            displayEmail.textContent = currentEmail;
-            openModal();
-            startTimer();
-        <% } %>
+        let currentEmail = "";
+        let countdown = 300; // 5 minutes
+        let timerInterval;
 
-        // ===== Event Listeners =====
+        // Helper to display page alerts
+        function showAlert(message, type = 'error') {
+            statusAlert.textContent = message;
+            statusAlert.className = `alert alert-${type}`;
+            statusAlert.style.display = 'block';
+        }
 
-        // Form submission with validation
-        signupForm.addEventListener('submit', async function(e) {
+        function hideAlert() {
+            statusAlert.style.display = 'none';
+        }
+
+        // ==========================================
+        // 1. ASYNC SIGNUP SUBMISSION
+        // ==========================================
+        signupForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            if (isSubmitting) return;
-            
-            // Clear previous errors
-            passwordError.classList.remove('visible');
-            passwordInput.classList.remove('error-input');
-            confirmInput.classList.remove('error-input');
-            
-            // Validate passwords match
-            if (passwordInput.value !== confirmInput.value) {
-                passwordError.classList.add('visible');
-                passwordInput.classList.add('error-input');
-                confirmInput.classList.add('error-input');
-                confirmInput.focus();
+            hideAlert();
+
+            const fullName = document.getElementById('fullName').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (password !== confirmPassword) {
+                showAlert("Passwords do not match");
                 return;
             }
-            
-            // Validate password length
-            if (passwordInput.value.length < 6) {
-                passwordError.textContent = "Password must be at least 6 characters";
-                passwordError.classList.add('visible');
-                passwordInput.classList.add('error-input');
-                return;
-            }
-            
-            isSubmitting = true;
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = 'Creating Account<span class="loading"></span>';
-            
+
+            signupSubmitBtn.disabled = true;
+            signupSubmitBtn.textContent = "Sending OTP...";
+
             try {
-                const formData = new FormData(signupForm);
-                const data = Object.fromEntries(formData);
-                
+                // We point exactly to your route setup
                 const res = await fetch('/user/signup', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ fullName, email, password, confirmPassword })
                 });
+
+                const contentType = res.headers.get("content-type");
                 
-                const result = await res.json();
-                
-                if (result.success && result.emailForVerification) {
-                    currentEmail = result.emailForVerification;
-                    displayEmail.textContent = currentEmail;
-                    openModal();
-                    startTimer();
-                    // Clear form
-                    signupForm.reset();
-                } else {
-                    // Show error from server
-                    const errorDiv = document.createElement('div');
-                    errorDiv.className = 'error';
-                    errorDiv.textContent = result.message || 'Signup failed. Please try again.';
-                    signupForm.insertBefore(errorDiv, signupForm.firstChild);
-                    setTimeout(() => errorDiv.remove(), 5000);
+                // If the response is HTML, your route failed validation and re-rendered the full page
+                if (contentType && contentType.includes("text/html")) {
+                    signupSubmitBtn.disabled = false;
+                    signupSubmitBtn.textContent = "Sign Up";
+                    showAlert("Registration error. Check fields or try another email.");
+                    return;
                 }
+
+                // If your backend responds with successful validation data
+                currentEmail = email.toLowerCase();
+                displayEmail.textContent = currentEmail;
+                
+                // Reset inputs inside modal
+                otpInputs.forEach(input => input.value = '');
+                otpError.textContent = '';
+                
+                // Display the modal popup cleanly
+                modal.classList.add('active');
+                otpInputs[0].focus();
+                startTimer();
+
             } catch (err) {
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'error';
-                errorDiv.textContent = 'Network error. Please check your connection.';
-                signupForm.insertBefore(errorDiv, signupForm.firstChild);
-                setTimeout(() => errorDiv.remove(), 5000);
+                console.error("Signup Submission Error:", err);
+                showAlert("Something went wrong. Please check your connection.");
             } finally {
-                isSubmitting = false;
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Sign Up';
+                signupSubmitBtn.disabled = false;
+                signupSubmitBtn.textContent = "Sign Up";
             }
         });
 
-        // OTP Input Handling
+        // ==========================================
+        // 2. 6-BOX INTERACTION LOGIC
+        // ==========================================
         otpInputs.forEach((input, index) => {
-            // Handle input
+            // Numbers typing processing
             input.addEventListener('input', (e) => {
-                // Only allow numbers
-                input.value = input.value.replace(/[^0-9]/g, '');
-                
-                // Update filled state
-                if (input.value) {
-                    input.classList.add('filled');
-                } else {
-                    input.classList.remove('filled');
-                }
-                
-                // Auto-focus next
+                input.value = input.value.replace(/[^0-9]/g, ''); // Numeric filter
                 if (input.value.length === 1 && index < 5) {
                     otpInputs[index + 1].focus();
                 }
-                
-                // Clear error on input
-                otpError.textContent = '';
-                
-                // Auto-submit if all filled
-                if (index === 5 && input.value) {
-                    const otp = Array.from(otpInputs).map(i => i.value).join('');
-                    if (otp.length === 6) {
-                        verifyOTP();
-                    }
-                }
             });
 
-            // Handle backspace
+            // Backspace alignment tracking
             input.addEventListener('keydown', (e) => {
                 if (e.key === "Backspace" && input.value === "" && index > 0) {
                     otpInputs[index - 1].focus();
                 }
-                // Handle left/right arrows
-                if (e.key === "ArrowLeft" && index > 0) {
-                    otpInputs[index - 1].focus();
-                }
-                if (e.key === "ArrowRight" && index < 5) {
-                    otpInputs[index + 1].focus();
-                }
             });
 
-            // Handle paste
+            // Clean clipboard parsing support for fast copy-pasting
             input.addEventListener('paste', (e) => {
                 e.preventDefault();
-                const pastedData = e.clipboardData.getData('text').replace(/[^0-9]/g, '').slice(0, 6);
-                
-                if (pastedData) {
-                    pastedData.split('').forEach((digit, i) => {
-                        if (otpInputs[i]) {
-                            otpInputs[i].value = digit;
-                            otpInputs[i].classList.add('filled');
-                        }
+                const pasteData = e.clipboardData.getData('text').trim();
+                if (/^\d{6}$/.test(pasteData)) {
+                    otpInputs.forEach((inp, idx) => {
+                        inp.value = pasteData[idx];
                     });
-                    
-                    // Focus next empty or last
-                    const nextEmpty = Array.from(otpInputs).findIndex(inp => !inp.value);
-                    if (nextEmpty !== -1) {
-                        otpInputs[nextEmpty].focus();
-                    } else {
-                        otpInputs[5].focus();
-                        verifyOTP();
-                    }
+                    otpInputs[5].focus();
                 }
             });
-
-            // Focus handling
-            input.addEventListener('focus', () => {
-                input.select();
-            });
         });
 
-        // ===== Modal Functions =====
-
-        function openModal() {
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-            // Focus first input after animation
-            setTimeout(() => {
-                otpInputs[0].focus();
-            }, 100);
-        }
-
-        function closeModal() {
-            modal.classList.remove('active');
-            document.body.style.overflow = '';
-            clearInterval(timerInterval);
-            // Clear inputs
-            otpInputs.forEach(input => {
-                input.value = '';
-                input.classList.remove('filled');
-            });
-            otpError.textContent = '';
-        }
-
-        // Close on overlay click
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                closeModal();
-            }
-        });
-
-        // Close on Escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && modal.classList.contains('active')) {
-                closeModal();
-            }
-        });
-
-        // ===== Timer Functions =====
-
+        // ==========================================
+        // 3. COUNTDOWN TIMER SYSTEM
+        // ==========================================
         function startTimer() {
             clearInterval(timerInterval);
-            countdown = 300;
-            resendBtn.disabled = true;
-            timerDisplay.classList.remove('expired');
-
-            updateTimerDisplay();
+            countdown = 300; // 5 mins
+            document.getElementById('resendBtn').disabled = true;
 
             timerInterval = setInterval(() => {
+                const min = Math.floor(countdown / 60);
+                const sec = countdown % 60;
+                document.getElementById('timer').textContent = `Expires in ${min}:${sec < 10 ? '0' : ''}${sec}`;
                 countdown--;
-                updateTimerDisplay();
 
-                if (countdown <= 0) {
+                if (countdown < 0) {
                     clearInterval(timerInterval);
-                    resendBtn.disabled = false;
-                    timerDisplay.textContent = 'Code expired. You can resend now.';
-                    timerDisplay.classList.add('expired');
+                    document.getElementById('resendBtn').disabled = false;
+                    document.getElementById('timer').textContent = 'OTP Expired.';
                 }
             }, 1000);
         }
 
-        function updateTimerDisplay() {
-            if (countdown > 0) {
-                const min = Math.floor(countdown / 60);
-                const sec = countdown % 60;
-                timerDisplay.textContent = `Expires in ${min}:${sec < 10 ? '0' : ''}${sec}`;
-            }
-        }
-
-        // ===== OTP Verification =====
-
+        // ==========================================
+        // 4. VERIFY OTP SUBMISSION
+        // ==========================================
         async function verifyOTP() {
+            otpError.textContent = "";
             const otp = Array.from(otpInputs).map(i => i.value).join('');
             
             if (otp.length !== 6) {
                 otpError.textContent = "Please enter all 6 digits";
-                otpInputs[otp.indexOf('') !== -1 ? otp.indexOf('') : 0].focus();
                 return;
             }
-
-            verifyBtn.disabled = true;
-            verifyBtn.innerHTML = 'Verifying<span class="loading"></span>';
 
             try {
                 const res = await fetch('/user/verify-otp', {
@@ -713,84 +475,27 @@
                 const data = await res.json();
 
                 if (data.success) {
-                    verifyBtn.innerHTML = '✓ Verified!';
-                    verifyBtn.style.background = '#10b981';
-                    
-                    setTimeout(() => {
-                        window.location.href = data.redirect || "/";
-                    }, 800);
+                    closeModal();
+                    alert("✅ Account created and verified successfully!");
+                    window.location.href = "/"; // Directs to home layout
                 } else {
-                    otpError.textContent = data.message || "Invalid OTP. Please try again.";
-                    // Shake animation
-                    otpInputs.forEach(input => {
-                        input.style.animation = 'shake 0.5s';
-                        setTimeout(() => input.style.animation = '', 500);
-                    });
-                    // Clear inputs for retry
-                    setTimeout(() => {
-                        otpInputs.forEach(input => {
-                            input.value = '';
-                            input.classList.remove('filled');
-                        });
-                        otpInputs[0].focus();
-                    }, 200);
+                    otpError.textContent = data.message || "Invalid OTP";
                 }
             } catch (err) {
-                otpError.textContent = "Network error. Please try again.";
-            } finally {
-                verifyBtn.disabled = false;
-                verifyBtn.textContent = 'Verify OTP';
+                otpError.textContent = "Verification failed. Check network settings.";
             }
         }
 
-        // ===== Resend OTP =====
+        function closeModal() {
+            modal.classList.remove('active');
+            clearInterval(timerInterval);
+        }
 
         async function resendOTP() {
-            if (countdown > 0) return;
-            
-            resendBtn.disabled = true;
-            resendBtn.innerHTML = 'Sending<span class="loading"></span>';
-            
-            try {
-                const res = await fetch('/user/resend-otp', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: currentEmail })
-                });
-                
-                const data = await res.json();
-                
-                if (data.success) {
-                    otpError.textContent = '';
-                    startTimer();
-                    // Clear inputs
-                    otpInputs.forEach(input => {
-                        input.value = '';
-                        input.classList.remove('filled');
-                    });
-                    otpInputs[0].focus();
-                } else {
-                    otpError.textContent = data.message || "Failed to resend. Please try again.";
-                    resendBtn.disabled = false;
-                }
-            } catch (err) {
-                otpError.textContent = "Network error. Please try again.";
-                resendBtn.disabled = false;
-            } finally {
-                resendBtn.textContent = 'Resend Code';
-            }
+            alert("Resending validation code to your email...");
+            closeModal();
+            signupForm.dispatchEvent(new Event('submit'));
         }
-
-        // ===== Shake Animation =====
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes shake {
-                0%, 100% { transform: translateX(0); }
-                25% { transform: translateX(-5px); }
-                75% { transform: translateX(5px); }
-            }
-        `;
-        document.head.appendChild(style);
     </script>
 </body>
 </html>
