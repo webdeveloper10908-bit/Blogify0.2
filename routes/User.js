@@ -33,6 +33,13 @@ router.post("/signin", async (req, res) => {
     }
 });
 
+// ====================== GET SIGNUP PAGE ======================
+router.get("/signup", (req, res) => {
+    res.render("signup", { 
+        user: req.user || null 
+    });
+});
+
 // ====================== SEND OTP ======================
 router.post("/send-otp", async (req, res) => {
     const { email } = req.body;
@@ -66,7 +73,7 @@ router.post("/send-otp", async (req, res) => {
     }
 });
 
-// ====================== SIGNUP ======================
+// ====================== POST SIGNUP ======================
 router.post("/signup", async (req, res) => {
     const { FullName, email, password, otp } = req.body;
 
@@ -136,7 +143,7 @@ router.post("/signup", async (req, res) => {
 // ====================== LOGOUT ======================
 router.get("/logout", (req, res) => {
     res.clearCookie("token");
-    res.status(200).json({ success: true, message: "Logged out successfully" });
+    res.redirect("/");
 });
 
 router.post("/logout", (req, res) => {
