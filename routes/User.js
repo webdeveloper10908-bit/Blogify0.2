@@ -3,7 +3,7 @@ const router = express.Router();
 const User = require("../models/user");
 const { sendOTPEmail } = require("../services/email");
 
-// Temporary OTP storage (In production, replace with Redis)
+// Temporary OTP Store
 const otpStore = new Map();
 
 // ====================== OLD SIGNIN LOGIC (UNTOUCHED) ======================
@@ -17,7 +17,7 @@ router.post("/signin", async (req, res) => {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: "strict",
-            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+            maxAge: 7 * 24 * 60 * 60 * 1000
         });
 
         res.status(200).json({
@@ -44,7 +44,6 @@ router.post("/send-otp", async (req, res) => {
     try {
         const normalizedEmail = email.toLowerCase();
 
-        // Check if email already exists
         const existingUser = await User.findOne({ email: normalizedEmail });
         if (existingUser) {
             return res.status(409).json({
@@ -54,7 +53,7 @@ router.post("/send-otp", async (req, res) => {
         }
 
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        const expiresAt = Date.now() + 5 * 60 * 1000; // 5 minutes
+        const expiresAt = Date.now() + 5 * 60 * 1000;
 
         otpStore.set(normalizedEmail, { otp, expiresAt });
 
@@ -67,7 +66,7 @@ router.post("/send-otp", async (req, res) => {
     }
 });
 
-// ====================== SIGNUP (Updated) ======================
+// ====================== SIGNUP ======================
 router.post("/signup", async (req, res) => {
     const { FullName, email, password, otp } = req.body;
 
@@ -78,7 +77,6 @@ router.post("/signup", async (req, res) => {
     try {
         const normalizedEmail = email.toLowerCase();
 
-        // Check if email already exists
         const existingUser = await User.findOne({ email: normalizedEmail });
         if (existingUser) {
             return res.status(409).json({
@@ -87,7 +85,6 @@ router.post("/signup", async (req, res) => {
             });
         }
 
-        // Validate OTP
         const storedOtpData = otpStore.get(normalizedEmail);
         if (!storedOtpData) {
             return res.status(400).json({ success: false, message: "No OTP found. Request new OTP." });
@@ -102,17 +99,14 @@ router.post("/signup", async (req, res) => {
             return res.status(400).json({ success: false, message: "Invalid OTP" });
         }
 
-        // Create new user
         const user = await User.create({
             fullName: FullName,
             email: normalizedEmail,
-            password: password   // Hashing handled in User model pre-save
+            password: password
         });
 
-        // Clear OTP
         otpStore.delete(normalizedEmail);
 
-        // Generate token using your original signin logic
         const token = await User.matchPassword(normalizedEmail, password);
 
         res.cookie("token", token, {
@@ -137,6 +131,17 @@ router.post("/signup", async (req, res) => {
         console.error("Signup Error:", error);
         res.status(500).json({ success: false, message: "Signup failed. Please try again." });
     }
+});
+
+// ====================== LOGOUT ======================
+router.get("/logout", (req, res) => {
+    res.clearCookie("token");
+    res.status(200).json({ success: true, message: "Logged out successfully" });
+});
+
+router.post("/logout", (req, res) => {
+    res.clearCookie("token");
+    res.status(200).json({ success: true, message: "Logged out successfully" });
 });
 
 module.exports = router;
