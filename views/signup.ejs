@@ -20,10 +20,10 @@
 
         .form-control {
             border-radius: 12px;
-            padding: 14px 16px;
+            padding: 12px 16px;           /* Reduced padding */
             border: 2px solid #e2e8f0;
             transition: all 0.3s ease;
-            font-size: 1rem;
+            font-size: 0.98rem;
         }
 
         .form-control:focus {
@@ -31,14 +31,14 @@
             box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
         }
 
-        /* OTP Styling - Larger for mobile touch */
+        /* OTP Styling */
         .otp-box {
-            width: 48px;
-            height: 58px;
-            font-size: 1.5rem;
+            width: 46px;
+            height: 54px;
+            font-size: 1.45rem;
             font-weight: 600;
             text-align: center;
-            border-radius: 12px;
+            border-radius: 10px;
             border: 2px solid #e2e8f0;
         }
 
@@ -51,35 +51,23 @@
             background: linear-gradient(135deg, #667eea, #5a67d8);
             border: none;
             border-radius: 12px;
-            padding: 14px;
+            padding: 13px;
             font-weight: 600;
-            font-size: 1.05rem;
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.35);
+            font-size: 1.02rem;
         }
 
         .google-btn {
             border: 2px solid #e2e8f0;
             border-radius: 12px;
-            padding: 14px;
+            padding: 13px;
             font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .google-btn:hover {
-            border-color: #94a3b8;
-            background: #f8fafc;
         }
 
         .divider {
             display: flex;
             align-items: center;
             color: #94a3b8;
-            margin: 24px 0;
+            margin: 20px 0;
         }
         .divider::before,
         .divider::after {
@@ -89,22 +77,23 @@
             background: #e2e8f0;
         }
 
+        /* Smaller overall form */
+        .auth-card {
+            max-width: 420px;
+            margin: 0 auto;
+        }
+
         /* Mobile Optimizations */
         @media (max-width: 576px) {
             .auth-card {
-                margin: 15px;
+                margin: 12px;
                 border-radius: 16px;
+                padding: 1.5rem !important;
             }
             .otp-box {
-                width: 42px;
-                height: 54px;
-                font-size: 1.4rem;
-            }
-            .form-control {
-                padding: 13px 14px;
-            }
-            h2 {
-                font-size: 1.65rem;
+                width: 40px;
+                height: 50px;
+                font-size: 1.35rem;
             }
         }
     </style>
@@ -114,18 +103,18 @@
 
     <div class="container py-4 py-md-5">
         <div class="row justify-content-center">
-            <div class="col-11 col-sm-10 col-md-7 col-lg-5">
-                <div class="auth-card p-4 p-md-5">
-                    <div class="text-center mb-4 mb-md-5">
-                        <h2 class="fw-bold text-dark">Create Your Account</h2>
-                        <p class="text-muted">Join Blogify and start sharing</p>
+            <div class="col-11 col-sm-10 col-md-6 col-lg-5">   <!-- Reduced width -->
+                <div class="auth-card p-4 p-sm-5">               <!-- Reduced padding -->
+                    <div class="text-center mb-4">
+                        <h2 class="fw-bold text-dark mb-1">Create Account</h2>
+                        <p class="text-muted small">Join Blogify and start sharing</p>
                     </div>
 
                     <!-- Google Signup -->
                     <a href="/user/auth/google" 
                        class="google-btn d-flex align-items-center justify-content-center gap-3 w-100 text-decoration-none text-dark mb-4">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" 
-                             width="24" height="24" alt="Google">
+                             width="22" height="22" alt="Google">
                         Sign up with Google
                     </a>
 
@@ -134,22 +123,22 @@
                     </div>
 
                     <form id="signupForm">
-                        <div class="mb-4">
+                        <div class="mb-3">
                             <label class="form-label fw-medium">Full Name</label>
                             <input type="text" id="fullName" name="fullName" class="form-control" placeholder="John Doe" required>
                         </div>
 
-                        <div class="mb-4">
+                        <div class="mb-3">
                             <label class="form-label fw-medium">Email Address</label>
                             <input type="email" id="email" name="email" class="form-control" placeholder="you@example.com" required>
                         </div>
 
-                        <div class="mb-4">
+                        <div class="mb-3">
                             <label class="form-label fw-medium">Password</label>
                             <div class="input-group">
                                 <input type="password" id="password" name="password" class="form-control" required>
                                 <button type="button" class="btn btn-outline-secondary" id="togglePassword" 
-                                        style="border-radius: 0 12px 12px 0; min-width: 50px;">
+                                        style="border-radius: 0 12px 12px 0; min-width: 48px;">
                                     👁️
                                 </button>
                             </div>
@@ -157,7 +146,7 @@
 
                         <div class="mb-4">
                             <label class="form-label fw-medium">Verification Code (OTP)</label>
-                            <div class="d-flex gap-2 gap-sm-3 justify-content-center mb-3" id="otpContainer">
+                            <div class="d-flex gap-2 justify-content-center mb-3" id="otpContainer">
                                 <input type="text" maxlength="1" class="otp-box form-control text-center" data-index="0">
                                 <input type="text" maxlength="1" class="otp-box form-control text-center" data-index="1">
                                 <input type="text" maxlength="1" class="otp-box form-control text-center" data-index="2">
@@ -200,7 +189,7 @@
             }
         });
 
-        // OTP Handling (Better for mobile)
+        // OTP Handling
         const otpInputs = document.querySelectorAll('.otp-box');
         otpInputs.forEach((input, index) => {
             input.addEventListener('input', () => {
