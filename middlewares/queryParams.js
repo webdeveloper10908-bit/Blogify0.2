@@ -6,8 +6,7 @@ const queryHandler = (req, res, next) => {
         search: search.trim(),
         sort,
         page: parseInt(page),
-        limit: parseInt(limit),
-        skip: (parseInt(page) - 1) * parseInt(limit)
+        limit: parseInt(limit)
     };
     next();
 };
