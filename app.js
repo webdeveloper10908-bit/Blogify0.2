@@ -122,7 +122,7 @@ app.get("/", async (req, res) => {
         });
     } catch (error) {
         console.error("🚨 Home Route Error:", error.message);
-        res.status(500).send("Internal Server Error - Check Logs");
+        res.status(500).render("error", { error: error.message });
     }
 });
 
@@ -145,7 +145,7 @@ app.use((req, res) => {
 // ====================== ERROR HANDLER ======================
 app.use((err, req, res, next) => {
     console.error("🚨 Server Error:", err);
-    res.status(500).render("error", { error: err.message });
+    res.status(err.status || 500).render("error", { error: err });
 });
 
 app.listen(PORT, () => {
