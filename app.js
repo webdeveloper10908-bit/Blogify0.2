@@ -30,7 +30,7 @@ const PORT = process.env.PORT || 8000;
 
 require("dotenv").config();
 
-// Initialize Marked Parser configured to pass text directly to Highlight.js
+// Initialize Marked Parser configured to pass code explicitly to Highlight.js
 const marked = new Marked(
     markedHighlight({
         emptyLangClass: 'hljs',
@@ -113,7 +113,6 @@ app.locals.renderMarkdown = function(rawContent) {
         .replace(/strong/g, '**');
 
     // 2. Escape raw HTML elements embedded exclusively inside markdown backticks 
-    // This stops the browser from interpreting structural text strings as functional layouts
     sanitized = sanitized.replace(/```([\s\S]*?)```/g, (match, codeSnippet) => {
         const escapedSnippet = codeSnippet
             .replace(/&/g, '&amp;')
