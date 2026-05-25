@@ -20,6 +20,7 @@ const PORT = process.env.PORT || 8000;
 
 require("dotenv").config();
 
+// ====================== MIDDLEWARE ======================
 app.set("view engine", "ejs");
 app.set("views", path.resolve("./views"));
 
@@ -30,21 +31,20 @@ app.use(express.static(path.resolve("./public")));
 
 app.use(passport.initialize());
 app.use(checkForAuthenticationCookie("token"));
-app.use(queryHandler);   // Important
+app.use(queryHandler);   // Query Params Middleware
 
-// GraphQL
+// ====================== GRAPHQL ======================
 app.use('/graphql', graphqlHTTP({
     schema: schema,
     rootValue: root,
     graphiql: true
 }));
 
-// ====================== HOME ROUTE (Fixed) ======================
+// ====================== HOME ROUTE WITH QUERY PARAMS ======================
 app.get("/", async (req, res) => {
     try {
         const Blog = require("./models/Blog");
-        
-        const { search = '', sort = 'newest', page = 1, limit = 9 } = req.queryParams || req.query;
+        const { search = '', sort = 'newest', page = 1, limit = 9 } = req.queryParams;
 
         const filter = search ? {
             $or: [
@@ -80,12 +80,12 @@ app.get("/", async (req, res) => {
             sort
         });
     } catch (error) {
-        console.error("🚨 Home Route Error:", error);
-        res.status(500).send("Internal Server Error - Check Server Logs");
+        console.error("🚨 Home Route Error:", error.message);
+        res.status(500).send("Internal Server Error");
     }
 });
 
-// Other Routes
+// ====================== ROUTES ======================
 app.use("/admin", AdminRoute);
 app.use("/user/profile", ProfileRoute);
 app.use("/user", UserRoute);
@@ -94,7 +94,7 @@ app.use("/blogs", BlogRoute);
 
 app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`📊 GraphQL → /graphql`);
+    console.log(`📊 GraphQL → http://localhost:${PORT}/graphql`);
 });
 
 module.exports = app;
