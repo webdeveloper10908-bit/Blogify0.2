@@ -97,8 +97,17 @@ app.locals.formatDate = function(date) {
 app.locals.renderMarkdown = function(rawContent) {
     if (!rawContent) return '';
     
-    // 1. Clean systemic debris characters present across text entries
-    let sanitized = String(rawContent)
+    let contentString = String(rawContent);
+
+    // 1. ISOLATE CODE BLOCKS: Extract all backtick sections to protect code contents from debris filters
+    const codeBlocks = [];
+    contentString = contentString.replace(/```([\s\S]*?)```/g, (match) => {
+        codeBlocks.push(match);
+        return `__BLOGIFY_CODE_BLOCK_PLACEHOLDER_${codeBlocks.length - 1}__`;
+    });
+
+    // 2. CLEAN SYSTEMIC DEBRIS: Safe execution only applied to markdown body text structure
+    contentString = contentString
         .replace(/\/ppbr\/pp/g, '\n\n')
         .replace(/\/ppbr\/ph2/g, '\n\n## ')
         .replace(/\/ppbr\/ph/g, '\n\n# ')
@@ -109,20 +118,16 @@ app.locals.renderMarkdown = function(rawContent) {
         .replace(/\/li/g, '\n* ')
         .replace(/pbr\/pul/g, '\n\n')
         .replace(/pbr\/p/g, '\n')
-        .replace(/\/strong/g, '**')
-        .replace(/strong/g, '**');
+        .replace(/<\/strong>/g, '**')
+        .replace(/<strong>/g, '**');
 
-    // 2. Escape raw HTML elements embedded exclusively inside markdown backticks 
-    sanitized = sanitized.replace(/```([\s\S]*?)```/g, (match, codeSnippet) => {
-        const escapedSnippet = codeSnippet
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;');
-        return '```' + escapedSnippet + '```';
+    // 3. RESTORE CODE BLOCKS: Re-insert pure unescaped code snippets back into place for Marked + Highlight.js
+    contentString = contentString.replace(/__BLOGIFY_CODE_BLOCK_PLACEHOLDER_(\d+)__/g, (match, index) => {
+        return codeBlocks[parseInt(index)];
     });
 
-    // 3. Compile processed markdown structures into finished template text HTML
-    return marked.parse(sanitized);
+    // 4. COMPILE STRUCTURES: Let marked parse blocks cleanly and auto-escape elements contextually
+    return marked.parse(contentString);
 };
 // ============================================================
 
