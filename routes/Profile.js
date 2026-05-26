@@ -5,35 +5,66 @@ const User = require("../models/user");
 const { restrictToLoggedInUserOnly } = require("../middlewares/authentication");
 const cloudinaryUpload = require("../middlewares/CloudinaryUploads");
 
-router.use(restrictToLoggedInUserOnly);
-
-// ====================== GET USER PROFILE ======================
-// ====================== VIEW PROFILE ======================
-router.get("/", restrictToLoggedInUserOnly, async (req, res) => {
+// ====================== PUBLIC: VIEW ANY USER PROFILE ======================
+// Route: /user/profile/:userId - Public route (no auth required)
+router.get("/:userId", async (req, res) => {
     try {
-        // This is the fix: actively populating followers and following data fields
-        const fullUser = await User.findById(req.user._id)
+        const { userId } = req.params;
+
+        // Validate if userId is a valid MongoDB ObjectId
+        if (!userId.match(/^[0-9a-fA-F]{24}$/)) {
+            return res.status(400).render("error", { 
+                error: { message: "Invalid user ID format" } 
+            });
+        }
+
+        const targetUser = await User.findById(userId)
             .populate("followers", "fullName email profileImageURL bio")
             .populate("following", "fullName email profileImageURL bio");
 
-        if (!fullUser) {
-            return res.status(404).send("User not found");
+        if (!targetUser) {
+            return res.status(404).render("error", { 
+                error: { message: "User not found" } 
+            });
         }
 
-        // Fetch blogs authored by this specific user
-        const blogs = await Blog.find({ createdBy: req.user._id, isDeleted: false })
+        // Fetch blogs by the target user (only published ones)
+        const blogs = await Blog.find({ createdBy: userId, isDeleted: false, status: "published" })
             .sort({ createdAt: -1 });
 
-        // Render profile view with the fully populated data structures
+        // Check if current user is following this user
+        let isFollowing = false;
+        if (req.user) {
+            isFollowing = req.user.following && req.user.following.some(id => id.toString() === userId);
+        }
+
         res.render("profile", {
-            user: fullUser,
-            blogs: blogs || []
+            user: targetUser,
+            blogs: blogs || [],
+            isOwnProfile: req.user && req.user._id.toString() === userId,
+            isFollowing: isFollowing,
+            currentUserId: req.user ? req.user._id : null
         });
+    } catch (error) {
+        console.error("🚨 Profile Route Error:", error.message);
+        res.status(500).render("error", { error: error.message });
+    }
+});
+
+// ====================== PROTECTED ROUTES (Require Authentication) ======================
+router.use(restrictToLoggedInUserOnly);
+
+// ====================== GET OWN PROFILE (My Profile) ======================
+router.get("/", restrictToLoggedInUserOnly, async (req, res) => {
+    try {
+        // Redirect to the user's own profile using the public route
+        return res.redirect(`/user/profile/${req.user._id}`);
     } catch (error) {
         console.error("🚨 Profile Route Error:", error.message);
         res.status(500).send("Internal Server Error");
     }
 });
+
 // ====================== GET EDIT PROFILE PAGE ======================
 router.get("/edit", async (req, res) => {
     try {
