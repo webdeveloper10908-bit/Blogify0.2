@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const Blog = require("../models/Blog");
+const Comment = require("../models/Comment");
+const BlogAnalytics = require("../models/BlogAnalytics");
 const { restrictToLoggedInUserOnly } = require("../middlewares/authentication");
 const { blogCreationLimiter } = require("../middlewares/rateLimiting");
 const cloudinaryUpload = require("../middlewares/CloudinaryUploads");
@@ -192,7 +194,15 @@ router.delete("/:id", async (req, res) => {
             return res.status(403).json({ success: false, message: "Not authorized" });
         }
 
-        // Soft delete
+        const blogId = blog._id;
+
+        // Delete all comments associated with this blog
+        await Comment.deleteMany({ blog: blogId });
+
+        // Delete blog analytics
+        await BlogAnalytics.deleteOne({ blog: blogId });
+
+        // Soft delete the blog
         blog.isDeleted = true;
         blog.deletedAt = new Date();
         await blog.save();
