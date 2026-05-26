@@ -37,7 +37,7 @@
                     <!-- Stats -->
                     <div class="d-flex gap-4">
                         <div>
-                            <h5 class="fw-bold">0</h5>
+                            <h5 class="fw-bold"><%= blogs ? blogs.length : 0 %></h5>
                             <small class="text-muted">Blogs</small>
                         </div>
                         <div>
@@ -53,13 +53,25 @@
 
                 <div class="col-md-auto">
                     <div class="d-flex gap-2">
-                        <button class="btn btn-primary" id="editProfileBtn">
-                            <i class="fas fa-edit"></i> Edit Profile
-                        </button>
-                        <% if (locals.user && locals.user._id != user._id) { %>
-                            <button class="btn btn-outline-primary" onclick="toggleFollow()">
-                                <i class="fas fa-user-plus"></i> Follow
+                        <% if (isOwnProfile) { %>
+                            <!-- Edit Profile Button (Only for own profile) -->
+                            <button class="btn btn-primary" id="editProfileBtn">
+                                <i class="fas fa-edit"></i> Edit Profile
                             </button>
+                        <% } else { %>
+                            <!-- Follow Button (For other users' profiles) -->
+                            <% if (currentUserId) { %>
+                                <button class="btn btn-outline-primary" id="followBtn" 
+                                        onclick="toggleFollow('<%= user._id %>', this)"
+                                        data-following="<%= isFollowing %>">
+                                    <i class="fas <%= isFollowing ? 'fa-user-check' : 'fa-user-plus' %>"></i>
+                                    <%= isFollowing ? 'Following' : 'Follow' %>
+                                </button>
+                            <% } else { %>
+                                <a href="/user/signin" class="btn btn-primary">
+                                    <i class="fas fa-user-plus"></i> Sign In to Follow
+                                </a>
+                            <% } %>
                         <% } %>
                     </div>
                 </div>
@@ -88,7 +100,7 @@
                     <i class="fas fa-heart"></i> Following
                 </button>
             </li>
-            <% if (locals.user && locals.user._id == user._id) { %>
+            <% if (isOwnProfile) { %>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="analytics-tab" data-bs-toggle="tab" 
                             data-bs-target="#analytics" type="button" role="tab" aria-selected="false">
@@ -108,7 +120,7 @@
                     <div class="text-center py-5">
                         <i class="fas fa-inbox fa-5x text-muted mb-3"></i>
                         <h4 class="text-muted">No blogs published yet</h4>
-                        <% if (locals.user && locals.user._id == user._id) { %>
+                        <% if (isOwnProfile) { %>
                             <a href="/blogs/add-new" class="btn btn-primary mt-3">
                                 <i class="fas fa-pen"></i> Write First Blog
                             </a>
@@ -139,7 +151,7 @@
                                             <% } %>
                                         </div>
 
-                                        <% if (locals.user && locals.user._id == user._id) { %>
+                                        <% if (isOwnProfile) { %>
                                             <div class="dropdown position-absolute top-0 start-0 m-2">
                                                 <button class="btn btn-sm btn-dark dropdown-toggle" data-bs-toggle="dropdown">
                                                     <i class="fas fa-ellipsis-v"></i>
@@ -227,9 +239,18 @@
                                                  onerror="this.src='/imgs/default.png';">
                                             <h6 class="fw-bold"><%= follower.fullName %></h6>
                                             <p class="text-muted small"><%= follower.email %></p>
-                                            <button class="btn btn-sm btn-outline-primary w-100">
-                                                <i class="fas fa-user-plus"></i> Follow Back
-                                            </button>
+                                            <div class="d-flex gap-2">
+                                                <a href="/user/profile/<%= follower._id %>" class="btn btn-sm btn-outline-primary flex-grow-1">
+                                                    <i class="fas fa-eye"></i> View Profile
+                                                </a>
+                                                <% if (currentUserId && currentUserId != follower._id) { %>
+                                                    <button class="btn btn-sm btn-outline-primary" 
+                                                            onclick="toggleFollow('<%= follower._id %>', this)"
+                                                            data-following="false">
+                                                        <i class="fas fa-user-plus"></i>
+                                                    </button>
+                                                <% } %>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -259,9 +280,18 @@
                                                  onerror="this.src='/imgs/default.png';">
                                             <h6 class="fw-bold"><%= followee.fullName %></h6>
                                             <p class="text-muted small"><%= followee.email %></p>
-                                            <button class="btn btn-sm btn-success w-100">
-                                                <i class="fas fa-user-check"></i> Following
-                                            </button>
+                                            <div class="d-flex gap-2">
+                                                <a href="/user/profile/<%= followee._id %>" class="btn btn-sm btn-primary flex-grow-1">
+                                                    <i class="fas fa-eye"></i> View Profile
+                                                </a>
+                                                <% if (currentUserId && currentUserId != followee._id) { %>
+                                                    <button class="btn btn-sm btn-success" 
+                                                            onclick="toggleFollow('<%= followee._id %>', this)"
+                                                            data-following="true">
+                                                        <i class="fas fa-user-check"></i>
+                                                    </button>
+                                                <% } %>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -272,7 +302,7 @@
             </div>
 
             <!-- Analytics Tab (Only for own profile) -->
-            <% if (locals.user && locals.user._id == user._id) { %>
+            <% if (isOwnProfile) { %>
                 <div class="tab-pane fade" id="analytics" role="tabpanel">
                     <div class="row">
                         <div class="col-md-6 col-lg-3 mb-3">
@@ -321,7 +351,8 @@
 
     <script>
         const userId = '<%= user._id %>';
-        const currentUserId = '<%= locals.user ? locals.user._id : "" %>';
+        const currentUserId = '<%= currentUserId || "" %>';
+        const isOwnProfile = <%= isOwnProfile %>;
 
         // Delete Blog
         async function deleteBlog(id, event) {
@@ -339,26 +370,52 @@
             }
         }
 
-        // Toggle Follow
-        async function toggleFollow() {
+        // Toggle Follow - Now works from profile page
+        async function toggleFollow(targetUserId, buttonElement) {
             if (!currentUserId) {
                 window.location.href = '/user/signin';
                 return;
             }
 
+            if (targetUserId === currentUserId) {
+                notify.warning('You cannot follow yourself');
+                return;
+            }
+
+            const originalHTML = buttonElement.innerHTML;
+            const originalClass = buttonElement.className;
+            buttonElement.disabled = true;
+
             try {
-                const res = await axios.post(`/follow/${userId}/follow`);
+                const res = await axios.post(`/follow/${targetUserId}/follow`);
                 const data = res.data;
+
                 if (data.success) {
+                    if (data.following) {
+                        buttonElement.innerHTML = `<i class="fas fa-user-check"></i> Following`;
+                        buttonElement.classList.remove('btn-outline-primary');
+                        buttonElement.classList.add('btn-success');
+                        buttonElement.dataset.following = 'true';
+                    } else {
+                        buttonElement.innerHTML = `<i class="fas fa-user-plus"></i> Follow`;
+                        buttonElement.classList.remove('btn-success');
+                        buttonElement.classList.add('btn-outline-primary');
+                        buttonElement.dataset.following = 'false';
+                    }
                     notify.success(data.message);
+                } else {
+                    notify.error(data.message || 'Action failed');
                 }
             } catch (err) {
-                notify.error('Failed to follow user');
+                console.error("Follow Error:", err);
+                notify.error(err.response?.data?.message || 'Failed to follow user');
+            } finally {
+                buttonElement.disabled = false;
             }
         }
 
-        // Load Analytics
-        <% if (locals.user && locals.user._id == user._id) { %>
+        // Load Analytics (only on own profile)
+        <% if (isOwnProfile) { %>
             async function loadAnalytics() {
                 try {
                     const res = await axios.get('/analytics/author/stats');
@@ -374,18 +431,23 @@
                 }
             }
 
-            document.getElementById('analytics-tab').addEventListener('shown.bs.tab', loadAnalytics);
+            const analyticsTab = document.getElementById('analytics-tab');
+            if (analyticsTab) {
+                analyticsTab.addEventListener('shown.bs.tab', loadAnalytics);
+            }
         <% } %>
 
-        // Edit Profile
-        document.getElementById('editProfileBtn').addEventListener('click', () => {
-            if (currentUserId !== userId) {
-                notify.warning('You can only edit your own profile');
-                return;
-            }
-            // Navigate to edit profile page
-            window.location.href = '/user/profile/edit';
-        });
+        // Edit Profile Button
+        const editBtn = document.getElementById('editProfileBtn');
+        if (editBtn) {
+            editBtn.addEventListener('click', () => {
+                if (!isOwnProfile) {
+                    notify.warning('You can only edit your own profile');
+                    return;
+                }
+                window.location.href = '/user/profile/edit';
+            });
+        }
     </script>
 </body>
 </html>
